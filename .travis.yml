@@ -1,4 +1,3 @@
-#Type : PHP
 language: php
 php:
   - 5.3
