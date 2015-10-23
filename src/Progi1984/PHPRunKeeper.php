@@ -32,23 +32,25 @@ class PHPRunKeeper
 
     const CONTENT_TYPE_NEW_FITNESS_ACTIVITY = 'application/vnd.com.runkeeper.NewFitnessActivity+json';
 
+    const CONTENT_TYPE_NEW_STRENGTH_ACTIVITY = 'application/vnd.com.runkeeper.NewStrengthTrainingActivity+json';
+
     /**
      * Not implemented
-     * 
+     *
      * @var string
      */
     const CONTENT_TYPE_LIVE_FITNESS_ACTIVITY = 'application/vnd.com.runkeeper.LiveFitnessActivity+json';
 
     /**
      * Not implemented
-     * 
+     *
      * @var string
      */
     const CONTENT_TYPE_LIVE_FITNESS_ACTIVITY_UPDATE = 'application/vnd.com.runkeeper.LiveFitnessActivityUpdate+json';
 
     /**
      * Not implemented
-     * 
+     *
      * @var string
      */
     const CONTENT_TYPE_LIVE_FITNESS_ACTIVITY_COMPLETION = 'application/vnd.com.runkeeper.LiveFitnessActivityCompletion+json';
@@ -504,10 +506,11 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/fitness-activities#deleting-activity
-     * @param array $arrayData            
-     * @return string
+     * @link https://runkeeper.com/developer/healthgraph/strength-training#deleting-activity
+     * @param string $uri            
+     * @return boolean
      */
-    public function deleteFitnessActivity($uri)
+    public function deleteActivity($uri)
     {
         // Headers
         $arrayHeaders = $this->getHeaders();
@@ -549,6 +552,79 @@ class PHPRunKeeper
             'headers' => $arrayHeaders
         ));
         return $this->treatResult($oResponse);
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/strength-training#past
+     * @return mixed
+     */
+    public function setStrengthActivity($uri, $arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'start_time',
+                'total_calories',
+                'notes',
+                'exercises'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_STRENGTH_ACTIVITY;
+        $oResponse = $this->oClient->request('PUT', $uri, array(
+            'headers' => $arrayHeaders,
+            'json' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 200) {
+            return self::RETURN_SUCCESS;
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/strength-training#newly-completed-activities
+     * @param array $arrayData            
+     * @return string
+     */
+    public function addStrengthActivity($arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'start_time',
+                'notes',
+                'total_calories',
+                'exercises',
+                'post_to_facebook',
+                'post_to_twitter'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_STRENGTH_ACTIVITY;
+        $oResponse = $this->oClient->request('POST', $uri, array(
+            'headers' => $arrayHeaders,
+            'form_params' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 201) {
+            return $oResponse->getHeader('Location');
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
     }
 
     /**
