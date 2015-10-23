@@ -157,7 +157,6 @@ class PHPRunKeeper
     private function treatResult(HttpResponse $oResponse)
     {
         $content = (string) $oResponse->getBody();
-        echo '<!--' . var_export($oResponse->getHeaders(), true) . '--!>';
         $type = $oResponse->getHeader('Content-Type');
         $type = reset($type);
         $type = str_replace(';', '&', $type);
@@ -227,7 +226,6 @@ class PHPRunKeeper
             'json' => $arrayData
         ));
         if ($oResponse->getStatusCode() == 200) {
-            print_r((string) $oResponse->getBody());
             return self::RETURN_SUCCESS;
         } else {
             return self::RETURN_ERROR_SAVE;
