@@ -46,6 +46,12 @@ class PHPRunKeeper
 
     const CONTENT_TYPE_NEW_SLEEP_SET = 'application/vnd.com.runkeeper.NewSleepSet+json';
 
+    const CONTENT_TYPE_NUTRITION_SET_FEED = 'application/vnd.com.runkeeper.NutritionSetFeed+json';
+
+    const CONTENT_TYPE_NUTRITION_SET = 'application/vnd.com.runkeeper.NutritionSet+json';
+
+    const CONTENT_TYPE_NEW_NUTRITION_SET = 'application/vnd.com.runkeeper.NewNutritionSet+json';
+
     /**
      * Not implemented
      *
@@ -817,7 +823,7 @@ class PHPRunKeeper
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_SLEEP_SET_FEED;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
         // URL
-        $url = '/backgroundActivities';
+        $url = '/sleep';
         if (! empty($numPage) || ! empty($pageSize)) {
             $url .= '?';
             if (! empty($numPage)) {
@@ -903,6 +909,119 @@ class PHPRunKeeper
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_SLEEP_SET;
+        $oResponse = $this->oClient->request('POST', $uri, array(
+            'headers' => $arrayHeaders,
+            'form_params' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 201) {
+            return $oResponse->getHeader('Location');
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/nutrition-sets#feed
+     * @return mixed
+     */
+    public function getNutritionActivityFeed($numPage = null, $pageSize = null)
+    {
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NUTRITION_SET_FEED;
+        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
+        // URL
+        $url = '/nutrition';
+        if (! empty($numPage) || ! empty($pageSize)) {
+            $url .= '?';
+            if (! empty($numPage)) {
+                $url .= 'page=' . $numPage;
+            }
+            if (! empty($numPage) && ! empty($pageSize)) {
+                $url .= '&';
+            }
+            if (! empty($pageSize)) {
+                $url .= 'pageSize=' . $pageSize;
+            }
+        }
+        $oResponse = $this->oClient->request('GET', $url, array(
+            'headers' => $arrayHeaders
+        ));
+        return $this->treatResult($oResponse);
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/nutrition-sets#past
+     * @return mixed
+     */
+    public function setNutritionActivity($uri, $arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'calories',
+                'carbohydrates',
+                'fat',
+                'fiber',
+                'protein',
+                'sodium',
+                'water',
+                'meal'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NUTRITION_SET;
+        $oResponse = $this->oClient->request('PUT', $uri, array(
+            'headers' => $arrayHeaders,
+            'json' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 200) {
+            return self::RETURN_SUCCESS;
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/nutrition-sets#new
+     * @param array $arrayData            
+     * @return string
+     */
+    public function addNutritionActivity($arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'timestamp',
+                'calories',
+                'carbohydrates',
+                'fat',
+                'fiber',
+                'protein',
+                'sodium',
+                'water',
+                'meal',
+                'post_to_facebook',
+                'post_to_twitter'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_NUTRITION_SET;
         $oResponse = $this->oClient->request('POST', $uri, array(
             'headers' => $arrayHeaders,
             'form_params' => $arrayData
