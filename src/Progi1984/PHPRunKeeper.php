@@ -8,57 +8,23 @@ use \GuzzleHttp\Psr7\Response as HttpResponse;
 class PHPRunKeeper
 {
 
-    const CONTENT_TYPE_USER = 'application/vnd.com.runkeeper.User+json';
-
-    const CONTENT_TYPE_PROFILE = 'application/vnd.com.runkeeper.Profile+json';
-
-    const CONTENT_TYPE_SETTINGS = 'application/vnd.com.runkeeper.Settings+json';
-
-    const CONTENT_TYPE_FITNESS_ACTIVITY_FEED = 'application/vnd.com.runkeeper.FitnessActivityFeed+json';
-
-    const CONTENT_TYPE_FITNESS_ACTIVITY = 'application/vnd.com.runkeeper.FitnessActivity+json';
-
-    const CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY = 'application/vnd.com.runkeeper.FitnessActivitySummary+json';
-
-    const CONTENT_TYPE_STRENGTH_ACTIVITY_FEED = 'application/vnd.com.runkeeper.StrengthTrainingActivityFeed+json';
-
-    const CONTENT_TYPE_STRENGTH_ACTIVITY = 'application/vnd.com.runkeeper.StrengthTrainingActivity+json';
-
-    const CONTENT_TYPE_WEIGHT_SET_FEED = 'application/vnd.com.runkeeper.WeightSetFeed+json';
-
-    const CONTENT_TYPE_WEIGHT_SET = 'application/vnd.com.runkeeper.WeightSet+json';
-
-    const CONTENT_TYPE_NEW_WEIGHT_SET = 'application/vnd.com.runkeeper.NewWeightSet+json';
-
-    const CONTENT_TYPE_RECORDS = 'application/vnd.com.runkeeper.Records+json';
-
-    const CONTENT_TYPE_NEW_FITNESS_ACTIVITY = 'application/vnd.com.runkeeper.NewFitnessActivity+json';
-
-    const CONTENT_TYPE_NEW_STRENGTH_ACTIVITY = 'application/vnd.com.runkeeper.NewStrengthTrainingActivity+json';
+    const CONTENT_TYPE_BACKGROUND_ACTIVITY_SET = 'application/vnd.com.runkeeper.BackgroundActivitySet+json';
 
     const CONTENT_TYPE_BACKGROUND_ACTIVITY_SET_FEED = 'application/vnd.com.runkeeper.BackgroundActivitySetFeed+json';
 
-    const CONTENT_TYPE_BACKGROUND_ACTIVITY_SET = 'application/vnd.com.runkeeper.BackgroundActivitySet+json';
+    const CONTENT_TYPE_DIABETE_MEASUREMENT_SET = 'application/vnd.com.runkeeper.DiabetesMeasurementSet+json';
 
-    const CONTENT_TYPE_NEW_BACKGROUND_ACTIVITY_SET = 'application/vnd.com.runkeeper.NewBackgroundActivitySet+json';
+    const CONTENT_TYPE_DIABETE_MEASUREMENT_SET_FEED = 'application/vnd.com.runkeeper.DiabetesMeasurementSetFeed+json';
 
-    const CONTENT_TYPE_SLEEP_SET_FEED = 'application/vnd.com.runkeeper.SleepSetFeed+json';
+    const CONTENT_TYPE_FITNESS_ACTIVITY = 'application/vnd.com.runkeeper.FitnessActivity+json';
 
-    const CONTENT_TYPE_SLEEP_SET = 'application/vnd.com.runkeeper.SleepSet+json';
+    const CONTENT_TYPE_FITNESS_ACTIVITY_FEED = 'application/vnd.com.runkeeper.FitnessActivityFeed+json';
 
-    const CONTENT_TYPE_NEW_SLEEP_SET = 'application/vnd.com.runkeeper.NewSleepSet+json';
-
-    const CONTENT_TYPE_NUTRITION_SET_FEED = 'application/vnd.com.runkeeper.NutritionSetFeed+json';
-
-    const CONTENT_TYPE_NUTRITION_SET = 'application/vnd.com.runkeeper.NutritionSet+json';
-
-    const CONTENT_TYPE_NEW_NUTRITION_SET = 'application/vnd.com.runkeeper.NewNutritionSet+json';
-
-    const CONTENT_TYPE_GENERAL_MEASUREMENT_SET_FEED = 'application/vnd.com.runkeeper.GeneralMeasurementSetFeed+json';
+    const CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY = 'application/vnd.com.runkeeper.FitnessActivitySummary+json';
 
     const CONTENT_TYPE_GENERAL_MEASUREMENT_SET = 'application/vnd.com.runkeeper.GeneralMeasurementSet+json';
 
-    const CONTENT_TYPE_NEW_GENERAL_MEASUREMENT_SET = 'application/vnd.com.runkeeper.NewGeneralMeasurementSet+json';
+    const CONTENT_TYPE_GENERAL_MEASUREMENT_SET_FEED = 'application/vnd.com.runkeeper.GeneralMeasurementSetFeed+json';
 
     /**
      * Not implemented
@@ -72,14 +38,54 @@ class PHPRunKeeper
      *
      * @var string
      */
-    const CONTENT_TYPE_LIVE_FITNESS_ACTIVITY_UPDATE = 'application/vnd.com.runkeeper.LiveFitnessActivityUpdate+json';
+    const CONTENT_TYPE_LIVE_FITNESS_ACTIVITY_COMPLETION = 'application/vnd.com.runkeeper.LiveFitnessActivityCompletion+json';
 
     /**
      * Not implemented
      *
      * @var string
      */
-    const CONTENT_TYPE_LIVE_FITNESS_ACTIVITY_COMPLETION = 'application/vnd.com.runkeeper.LiveFitnessActivityCompletion+json';
+    const CONTENT_TYPE_LIVE_FITNESS_ACTIVITY_UPDATE = 'application/vnd.com.runkeeper.LiveFitnessActivityUpdate+json';
+
+    const CONTENT_TYPE_NEW_BACKGROUND_ACTIVITY_SET = 'application/vnd.com.runkeeper.NewBackgroundActivitySet+json';
+
+    const CONTENT_TYPE_NEW_DIABETE_MEASUREMENT_SET = 'application/vnd.com.runkeeper.NewDiabetesMeasurementSet+json';
+
+    const CONTENT_TYPE_NEW_FITNESS_ACTIVITY = 'application/vnd.com.runkeeper.NewFitnessActivity+json';
+
+    const CONTENT_TYPE_NEW_GENERAL_MEASUREMENT_SET = 'application/vnd.com.runkeeper.NewGeneralMeasurementSet+json';
+
+    const CONTENT_TYPE_NEW_NUTRITION_SET = 'application/vnd.com.runkeeper.NewNutritionSet+json';
+
+    const CONTENT_TYPE_NEW_SLEEP_SET = 'application/vnd.com.runkeeper.NewSleepSet+json';
+
+    const CONTENT_TYPE_NEW_STRENGTH_ACTIVITY = 'application/vnd.com.runkeeper.NewStrengthTrainingActivity+json';
+
+    const CONTENT_TYPE_NEW_WEIGHT_SET = 'application/vnd.com.runkeeper.NewWeightSet+json';
+
+    const CONTENT_TYPE_NUTRITION_SET = 'application/vnd.com.runkeeper.NutritionSet+json';
+
+    const CONTENT_TYPE_NUTRITION_SET_FEED = 'application/vnd.com.runkeeper.NutritionSetFeed+json';
+
+    const CONTENT_TYPE_PROFILE = 'application/vnd.com.runkeeper.Profile+json';
+
+    const CONTENT_TYPE_RECORDS = 'application/vnd.com.runkeeper.Records+json';
+
+    const CONTENT_TYPE_SETTINGS = 'application/vnd.com.runkeeper.Settings+json';
+
+    const CONTENT_TYPE_SLEEP_SET = 'application/vnd.com.runkeeper.SleepSet+json';
+
+    const CONTENT_TYPE_SLEEP_SET_FEED = 'application/vnd.com.runkeeper.SleepSetFeed+json';
+
+    const CONTENT_TYPE_STRENGTH_ACTIVITY = 'application/vnd.com.runkeeper.StrengthTrainingActivity+json';
+
+    const CONTENT_TYPE_STRENGTH_ACTIVITY_FEED = 'application/vnd.com.runkeeper.StrengthTrainingActivityFeed+json';
+
+    const CONTENT_TYPE_USER = 'application/vnd.com.runkeeper.User+json';
+
+    const CONTENT_TYPE_WEIGHT_SET = 'application/vnd.com.runkeeper.WeightSet+json';
+
+    const CONTENT_TYPE_WEIGHT_SET_FEED = 'application/vnd.com.runkeeper.WeightSetFeed+json';
 
     const RETURN_SUCCESS = 1;
 
@@ -1251,6 +1257,118 @@ class PHPRunKeeper
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_GENERAL_MEASUREMENT_SET;
+        $oResponse = $this->oClient->request('POST', $uri, array(
+            'headers' => $arrayHeaders,
+            'form_params' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 201) {
+            return $oResponse->getHeader('Location');
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/diabetes-sets#feed
+     * @return mixed
+     */
+    public function getDiabeteMeasurementSetFeed($numPage = null, $pageSize = null)
+    {
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET_FEED;
+        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
+        // URL
+        $url = '/diabetes';
+        if (! empty($numPage) || ! empty($pageSize)) {
+            $url .= '?';
+            if (! empty($numPage)) {
+                $url .= 'page=' . $numPage;
+            }
+            if (! empty($numPage) && ! empty($pageSize)) {
+                $url .= '&';
+            }
+            if (! empty($pageSize)) {
+                $url .= 'pageSize=' . $pageSize;
+            }
+        }
+        $oResponse = $this->oClient->request('GET', $url, array(
+            'headers' => $arrayHeaders
+        ));
+        return $this->treatResult($oResponse);
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/diabetes-sets#past
+     * @return mixed
+     */
+    public function setDiabeteMeasurementSet($uri, $arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'fasting_plasma_glucose_test',
+                'oral_glucose_tolerance_test',
+                'random_plasma_glucose_test',
+                'hemoglobin_a1c',
+                'insulin',
+                'c_peptide',
+                'triglyceride'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET;
+        $oResponse = $this->oClient->request('PUT', $uri, array(
+            'headers' => $arrayHeaders,
+            'json' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 200) {
+            return self::RETURN_SUCCESS;
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/diabetes-sets#new
+     * @param array $arrayData            
+     * @return string
+     */
+    public function addDiabeteMeasurementSet($arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'timestamp',
+                'fasting_plasma_glucose_test',
+                'oral_glucose_tolerance_test',
+                'random_plasma_glucose_test',
+                'hemoglobin_a1c',
+                'insulin',
+                'c_peptide',
+                'triglyceride',
+                'white_cell_count',
+                'post_to_facebook',
+                'post_to_twitter'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_DIABETE_MEASUREMENT_SET;
         $oResponse = $this->oClient->request('POST', $uri, array(
             'headers' => $arrayHeaders,
             'form_params' => $arrayData
