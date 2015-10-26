@@ -54,6 +54,12 @@ class PHPRunKeeper
 
     const CONTENT_TYPE_NEW_NUTRITION_SET = 'application/vnd.com.runkeeper.NewNutritionSet+json';
 
+    const CONTENT_TYPE_GENERAL_MEASUREMENT_SET_FEED = 'application/vnd.com.runkeeper.GeneralMeasurementSetFeed+json';
+
+    const CONTENT_TYPE_GENERAL_MEASUREMENT_SET = 'application/vnd.com.runkeeper.GeneralMeasurementSet+json';
+
+    const CONTENT_TYPE_NEW_GENERAL_MEASUREMENT_SET = 'application/vnd.com.runkeeper.NewGeneralMeasurementSet+json';
+
     /**
      * Not implemented
      *
@@ -1100,6 +1106,151 @@ class PHPRunKeeper
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_NUTRITION_SET;
+        $oResponse = $this->oClient->request('POST', $uri, array(
+            'headers' => $arrayHeaders,
+            'form_params' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 201) {
+            return $oResponse->getHeader('Location');
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/general-measurement-sets#feed
+     * @return mixed
+     */
+    public function getGeneralMeasurementSetFeed($numPage = null, $pageSize = null)
+    {
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET_FEED;
+        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
+        // URL
+        $url = '/generalMeasurements';
+        if (! empty($numPage) || ! empty($pageSize)) {
+            $url .= '?';
+            if (! empty($numPage)) {
+                $url .= 'page=' . $numPage;
+            }
+            if (! empty($numPage) && ! empty($pageSize)) {
+                $url .= '&';
+            }
+            if (! empty($pageSize)) {
+                $url .= 'pageSize=' . $pageSize;
+            }
+        }
+        $oResponse = $this->oClient->request('GET', $url, array(
+            'headers' => $arrayHeaders
+        ));
+        return $this->treatResult($oResponse);
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/general-measurement-sets#past
+     * @return mixed
+     */
+    public function setGeneralMeasurementSet($uri, $arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'systolic',
+                'diastolic',
+                'total_cholesterol',
+                'hdl',
+                'ldl',
+                'vitamin_d',
+                'hscrp',
+                'crp',
+                'tsh',
+                'uric_acid',
+                'resting_heartrate',
+                'blood_calcium',
+                'blood_magnesium',
+                'creatine_kinase',
+                'blood_vitamin_b12',
+                'blood_folic_acid',
+                'ferritin',
+                'il6',
+                'testosterone',
+                'blood_potassium',
+                'blood_sodium',
+                'blood_zinc',
+                'blood_chromium',
+                'white_cell_count'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET;
+        $oResponse = $this->oClient->request('PUT', $uri, array(
+            'headers' => $arrayHeaders,
+            'json' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 200) {
+            return self::RETURN_SUCCESS;
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/general-measurement-sets#new
+     * @param array $arrayData            
+     * @return string
+     */
+    public function addGeneralMeasurementSet($arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'timestamp',
+                'systolic',
+                'diastolic',
+                'total_cholesterol',
+                'hdl',
+                'ldl',
+                'vitamin_d',
+                'hscrp',
+                'crp',
+                'tsh',
+                'uric_acid',
+                'resting_heartrate',
+                'blood_calcium',
+                'blood_magnesium',
+                'creatine_kinase',
+                'blood_vitamin_b12',
+                'blood_folic_acid',
+                'ferritin',
+                'il6',
+                'testosterone',
+                'blood_potassium',
+                'blood_sodium',
+                'blood_zinc',
+                'blood_chromium',
+                'white_cell_count',
+                'post_to_facebook',
+                'post_to_twitter'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_GENERAL_MEASUREMENT_SET;
         $oResponse = $this->oClient->request('POST', $uri, array(
             'headers' => $arrayHeaders,
             'form_params' => $arrayData
