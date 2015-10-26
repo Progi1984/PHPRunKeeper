@@ -28,6 +28,8 @@ class PHPRunKeeper
 
     const CONTENT_TYPE_WEIGHT_SET = 'application/vnd.com.runkeeper.WeightSet+json';
 
+    const CONTENT_TYPE_NEW_WEIGHT_SET = 'application/vnd.com.runkeeper.NewWeightSet+json';
+
     const CONTENT_TYPE_RECORDS = 'application/vnd.com.runkeeper.Records+json';
 
     const CONTENT_TYPE_NEW_FITNESS_ACTIVITY = 'application/vnd.com.runkeeper.NewFitnessActivity+json';
@@ -712,10 +714,86 @@ class PHPRunKeeper
 
     /**
      *
+     * @link https://runkeeper.com/developer/healthgraph/weight-sets#past
+     * @return mixed
+     */
+    public function setWeightSet($uri, $arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'weight',
+                'free_mass',
+                'fat_percent',
+                'mass_weight',
+                'bmi'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_WEIGHT_SET;
+        $oResponse = $this->oClient->request('PUT', $uri, array(
+            'headers' => $arrayHeaders,
+            'json' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 200) {
+            return self::RETURN_SUCCESS;
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/weight-sets#new
+     * @param array $arrayData            
+     * @return string
+     */
+    public function addWeightSet($arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'timestamp',
+                'weight',
+                'free_mass',
+                'fat_percent',
+                'mass_weight',
+                'bmi',
+                'post_to_facebook',
+                'post_to_twitter'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_WEIGHT_SET;
+        $oResponse = $this->oClient->request('POST', $uri, array(
+            'headers' => $arrayHeaders,
+            'form_params' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 201) {
+            return $oResponse->getHeader('Location');
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
+    }
+
+    /**
+     *
      * @link https://runkeeper.com/developer/healthgraph/background-activity-sets#feed
      * @return mixed
      */
-    public function getBackgroundActivityFeed($numPage = null, $pageSize = null)
+    public function getBackgroundActivitySetFeed($numPage = null, $pageSize = null)
     {
         // Headers
         $arrayHeaders = $this->getHeaders();
@@ -746,7 +824,7 @@ class PHPRunKeeper
      * @link https://runkeeper.com/developer/healthgraph/background-activity-sets#past
      * @return mixed
      */
-    public function setBackgroundActivity($uri, $arrayData)
+    public function setBackgroundActivitySet($uri, $arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -780,7 +858,7 @@ class PHPRunKeeper
      * @param array $arrayData            
      * @return string
      */
-    public function addBackgroundActivity($arrayData)
+    public function addBackgroundActivitySet($arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -816,7 +894,7 @@ class PHPRunKeeper
      * @link https://runkeeper.com/developer/healthgraph/sleep-sets#feed
      * @return mixed
      */
-    public function getSleepActivityFeed($numPage = null, $pageSize = null)
+    public function getSleepSetFeed($numPage = null, $pageSize = null)
     {
         // Headers
         $arrayHeaders = $this->getHeaders();
@@ -847,7 +925,7 @@ class PHPRunKeeper
      * @link https://runkeeper.com/developer/healthgraph/sleep-sets#past
      * @return mixed
      */
-    public function setSleepActivity($uri, $arrayData)
+    public function setSleepSet($uri, $arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -885,7 +963,7 @@ class PHPRunKeeper
      * @param array $arrayData            
      * @return string
      */
-    public function addSleepActivity($arrayData)
+    public function addSleepSet($arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -925,7 +1003,7 @@ class PHPRunKeeper
      * @link https://runkeeper.com/developer/healthgraph/nutrition-sets#feed
      * @return mixed
      */
-    public function getNutritionActivityFeed($numPage = null, $pageSize = null)
+    public function getNutritionSetFeed($numPage = null, $pageSize = null)
     {
         // Headers
         $arrayHeaders = $this->getHeaders();
@@ -956,7 +1034,7 @@ class PHPRunKeeper
      * @link https://runkeeper.com/developer/healthgraph/nutrition-sets#past
      * @return mixed
      */
-    public function setNutritionActivity($uri, $arrayData)
+    public function setNutritionSet($uri, $arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -996,7 +1074,7 @@ class PHPRunKeeper
      * @param array $arrayData            
      * @return string
      */
-    public function addNutritionActivity($arrayData)
+    public function addNutritionSet($arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
