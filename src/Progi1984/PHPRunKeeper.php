@@ -34,6 +34,12 @@ class PHPRunKeeper
 
     const CONTENT_TYPE_NEW_STRENGTH_ACTIVITY = 'application/vnd.com.runkeeper.NewStrengthTrainingActivity+json';
 
+    const CONTENT_TYPE_BACKGROUND_ACTIVITY_SET_FEED = 'application/vnd.com.runkeeper.BackgroundActivitySetFeed+json';
+
+    const CONTENT_TYPE_BACKGROUND_ACTIVITY_SET = 'application/vnd.com.runkeeper.BackgroundActivitySet+json';
+
+    const CONTENT_TYPE_NEW_BACKGROUND_ACTIVITY_SET = 'application/vnd.com.runkeeper.NewBackgroundActivitySet+json';
+
     /**
      * Not implemented
      *
@@ -690,6 +696,107 @@ class PHPRunKeeper
             'headers' => $arrayHeaders
         ));
         return $this->treatResult($oResponse);
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/background-activity-sets#feed
+     * @return mixed
+     */
+    public function getBackgroundActivityFeed($numPage = null, $pageSize = null)
+    {
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET_FEED;
+        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
+        // URL
+        $url = '/backgroundActivities';
+        if (! empty($numPage) || ! empty($pageSize)) {
+            $url .= '?';
+            if (! empty($numPage)) {
+                $url .= 'page=' . $numPage;
+            }
+            if (! empty($numPage) && ! empty($pageSize)) {
+                $url .= '&';
+            }
+            if (! empty($pageSize)) {
+                $url .= 'pageSize=' . $pageSize;
+            }
+        }
+        $oResponse = $this->oClient->request('GET', $url, array(
+            'headers' => $arrayHeaders
+        ));
+        return $this->treatResult($oResponse);
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/background-activity-sets#past
+     * @return mixed
+     */
+    public function setBackgroundActivityFeed($uri, $arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'calories_burned',
+                'steps'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET;
+        $oResponse = $this->oClient->request('PUT', $uri, array(
+            'headers' => $arrayHeaders,
+            'json' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 200) {
+            return self::RETURN_SUCCESS;
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/background-activity-sets#new
+     * @param array $arrayData            
+     * @return string
+     */
+    public function addBackgroundActivityFeed($arrayData)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, array(
+                'timestamp',
+                'calories_burned',
+                'steps',
+                'post_to_facebook',
+                'post_to_twitter'
+            ))) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_BACKGROUND_ACTIVITY_SET;
+        $oResponse = $this->oClient->request('POST', $uri, array(
+            'headers' => $arrayHeaders,
+            'form_params' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 201) {
+            return $oResponse->getHeader('Location');
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
     }
 
     /**
