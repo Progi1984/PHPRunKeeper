@@ -12,6 +12,10 @@ class PHPRunKeeper
 
     const CONTENT_TYPE_BACKGROUND_ACTIVITY_SET_FEED = 'application/vnd.com.runkeeper.BackgroundActivitySetFeed+json';
 
+    const CONTENT_TYPE_COMMENT = 'application/vnd.com.runkeeper.Comment+json';
+
+    const CONTENT_TYPE_COMMENT_THREAD = 'application/vnd.com.runkeeper.CommentThread+json';
+
     const CONTENT_TYPE_DIABETE_MEASUREMENT_SET = 'application/vnd.com.runkeeper.DiabetesMeasurementSet+json';
 
     const CONTENT_TYPE_DIABETE_MEASUREMENT_SET_FEED = 'application/vnd.com.runkeeper.DiabetesMeasurementSetFeed+json';
@@ -25,6 +29,13 @@ class PHPRunKeeper
     const CONTENT_TYPE_GENERAL_MEASUREMENT_SET = 'application/vnd.com.runkeeper.GeneralMeasurementSet+json';
 
     const CONTENT_TYPE_GENERAL_MEASUREMENT_SET_FEED = 'application/vnd.com.runkeeper.GeneralMeasurementSetFeed+json';
+
+    /**
+     * Not implemented
+     *
+     * @var string
+     */
+    const CONTENT_TYPE_INVITATION = 'application/vnd.com.runkeeper.Invitation+json';
 
     /**
      * Not implemented
@@ -46,6 +57,8 @@ class PHPRunKeeper
      * @var string
      */
     const CONTENT_TYPE_LIVE_FITNESS_ACTIVITY_UPDATE = 'application/vnd.com.runkeeper.LiveFitnessActivityUpdate+json';
+
+    const CONTENT_TYPE_MEMBER = 'application/vnd.com.runkeeper.Member+json';
 
     const CONTENT_TYPE_NEW_BACKGROUND_ACTIVITY_SET = 'application/vnd.com.runkeeper.NewBackgroundActivitySet+json';
 
@@ -71,6 +84,13 @@ class PHPRunKeeper
 
     const CONTENT_TYPE_RECORDS = 'application/vnd.com.runkeeper.Records+json';
 
+    /**
+     * Not implemented
+     *
+     * @var string
+     */
+    const CONTENT_TYPE_REPLY = 'application/vnd.com.runkeeper.Reply+json';
+
     const CONTENT_TYPE_SETTINGS = 'application/vnd.com.runkeeper.Settings+json';
 
     const CONTENT_TYPE_SLEEP_SET = 'application/vnd.com.runkeeper.SleepSet+json';
@@ -80,6 +100,8 @@ class PHPRunKeeper
     const CONTENT_TYPE_STRENGTH_ACTIVITY = 'application/vnd.com.runkeeper.StrengthTrainingActivity+json';
 
     const CONTENT_TYPE_STRENGTH_ACTIVITY_FEED = 'application/vnd.com.runkeeper.StrengthTrainingActivityFeed+json';
+
+    const CONTENT_TYPE_TEAM_FEED = 'application/vnd.com.runkeeper.TeamFeed+json';
 
     const CONTENT_TYPE_USER = 'application/vnd.com.runkeeper.User+json';
 
@@ -495,7 +517,7 @@ class PHPRunKeeper
      * @param array $arrayData            
      * @return string
      */
-    public function addFitnessActivity($arrayData)
+    public function addFitnessActivity(array $arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -627,7 +649,7 @@ class PHPRunKeeper
      * @param array $arrayData            
      * @return string
      */
-    public function addStrengthActivity($arrayData)
+    public function addStrengthActivity(array $arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -766,7 +788,7 @@ class PHPRunKeeper
      * @param array $arrayData            
      * @return string
      */
-    public function addWeightSet($arrayData)
+    public function addWeightSet(array $arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -870,7 +892,7 @@ class PHPRunKeeper
      * @param array $arrayData            
      * @return string
      */
-    public function addBackgroundActivitySet($arrayData)
+    public function addBackgroundActivitySet(array $arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -975,7 +997,7 @@ class PHPRunKeeper
      * @param array $arrayData            
      * @return string
      */
-    public function addSleepSet($arrayData)
+    public function addSleepSet(array $arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -1086,7 +1108,7 @@ class PHPRunKeeper
      * @param array $arrayData            
      * @return string
      */
-    public function addNutritionSet($arrayData)
+    public function addNutritionSet(array $arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -1215,7 +1237,7 @@ class PHPRunKeeper
      * @param array $arrayData            
      * @return string
      */
-    public function addGeneralMeasurementSet($arrayData)
+    public function addGeneralMeasurementSet(array $arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -1343,7 +1365,7 @@ class PHPRunKeeper
      * @param array $arrayData            
      * @return string
      */
-    public function addDiabeteMeasurementSet($arrayData)
+    public function addDiabeteMeasurementSet(array $arrayData)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
@@ -1409,5 +1431,96 @@ class PHPRunKeeper
             'headers' => $arrayHeaders
         ));
         return $this->treatResult($oResponse);
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/friends#feed
+     * @return mixed
+     */
+    public function getFriends($numPage = null, $pageSize = null)
+    {
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_TEAM_FEED;
+        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
+        // URL
+        $url = '/team';
+        if (! empty($numPage) || ! empty($pageSize)) {
+            $url .= '?';
+            if (! empty($numPage)) {
+                $url .= 'page=' . $numPage;
+            }
+            if (! empty($numPage) && ! empty($pageSize)) {
+                $url .= '&';
+            }
+            if (! empty($pageSize)) {
+                $url .= 'pageSize=' . $pageSize;
+            }
+        }
+        $oResponse = $this->oClient->request('GET', $url, array(
+            'headers' => $arrayHeaders
+        ));
+        return $this->treatResult($oResponse);
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/friends#members
+     * @return mixed
+     */
+    public function getMember($uri)
+    {
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_MEMBER;
+        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
+        $oResponse = $this->oClient->request('GET', $uri, array(
+            'headers' => $arrayHeaders
+        ));
+        return $this->treatResult($oResponse);
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/comments#thread
+     * @return mixed
+     */
+    public function getCommentThread($uri)
+    {
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_COMMENT_THREAD;
+        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
+        $oResponse = $this->oClient->request('GET', $uri, array(
+            'headers' => $arrayHeaders
+        ));
+        return $this->treatResult($oResponse);
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/comments#thread
+     * @param string $uri            
+     * @param string $comment            
+     * @return mixed
+     */
+    public function addComment($uri, $comment)
+    {
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_COMMENT;
+        $arrayHeaders['Accept'] = self::CONTENT_TYPE_COMMENT_THREAD;
+        $oResponse = $this->oClient->request('POST', $uri, array(
+            'headers' => $arrayHeaders,
+            'json' => array(
+                'comment' => $comment,
+            )
+        ));
+        if ($oResponse->getStatusCode() == 200) {
+            return self::RETURN_SUCCESS;
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
     }
 }
