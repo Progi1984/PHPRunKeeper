@@ -109,6 +109,144 @@ class PHPRunKeeper
 
     const CONTENT_TYPE_WEIGHT_SET_FEED = 'application/vnd.com.runkeeper.WeightSetFeed+json';
 
+    const EDIT_BACKGROUND_ACTIVITY = array(
+        'calories_burned',
+        'steps'
+    );
+
+    const EDIT_DIABETE_MEASUREMENT = array(
+        'fasting_plasma_glucose_test',
+        'oral_glucose_tolerance_test',
+        'random_plasma_glucose_test',
+        'hemoglobin_a1c',
+        'insulin',
+        'c_peptide',
+        'triglyceride'
+    );
+
+    const EDIT_FITNESS_ACTIVITY = array(
+        'type',
+        'secondary_type',
+        'equipment',
+        'start_time',
+        'total_distance',
+        'duration',
+        'average_heart_rate',
+        'heart_rate',
+        'total_calories',
+        'notes',
+        'path'
+    );
+
+    const EDIT_FITNESS_ACTIVITY_SUMMARY = array(
+        'type',
+        'secondary_type',
+        'equipment',
+        'start_time',
+        'total_distance',
+        'duration',
+        'average_heart_rate',
+        'heart_rate',
+        'total_calories',
+        'notes'
+    );
+
+    const EDIT_GENERAL_MEASUREMENT = array(
+        'systolic',
+        'diastolic',
+        'total_cholesterol',
+        'hdl',
+        'ldl',
+        'vitamin_d',
+        'hscrp',
+        'crp',
+        'tsh',
+        'uric_acid',
+        'resting_heartrate',
+        'blood_calcium',
+        'blood_magnesium',
+        'creatine_kinase',
+        'blood_vitamin_b12',
+        'blood_folic_acid',
+        'ferritin',
+        'il6',
+        'testosterone',
+        'blood_potassium',
+        'blood_sodium',
+        'blood_zinc',
+        'blood_chromium',
+        'white_cell_count'
+    );
+
+    const EDIT_NUTRITION = array(
+        'calories',
+        'carbohydrates',
+        'fat',
+        'fiber',
+        'protein',
+        'sodium',
+        'water',
+        'meal'
+    );
+
+    const EDIT_PROFILE = array(
+        'athlete_type'
+    );
+
+    const EDIT_SETTINGS = array(
+        'share_fitness_activities',
+        'share_map',
+        'post_fitness_activity_facebook',
+        'post_fitness_activity_twitter',
+        'post_live_fitness_activity_facebook',
+        'post_live_fitness_activity_twitter',
+        'share_background_activities',
+        'post_background_activity_facebook',
+        'post_background_activity_twitter',
+        'share_sleep',
+        'post_sleep_facebook',
+        'post_sleep_twitter',
+        'share_nutrition',
+        'post_nutrition_facebook',
+        'post_nutrition_twitter',
+        'share_weight',
+        'post_weight_facebook',
+        'post_weight_twitter',
+        'share_general_measurements',
+        'post_general_measurements_facebook',
+        'post_general_measurements_twitter',
+        'share_diabetes',
+        'post_diabetes_facebook',
+        'post_diabetes_twitter',
+        'distance_units',
+        'weight_units',
+        'first_day_of_week'
+    );
+
+    const EDIT_SLEEP = array(
+        'total_sleep',
+        'deep',
+        'rem',
+        'light',
+        'awake',
+        'times_woken'
+    );
+
+    const EDIT_STRENGTH_ACTIVITY = array(
+        'start_time',
+        'total_calories',
+        'notes',
+        'exercises'
+    );
+
+    const EDIT_WEIGHT = array(
+        'weight',
+        'free_mass',
+        'fat_percent',
+        'mass_weight',
+        'bmi'
+    );
+
     const RETURN_SUCCESS = 1;
 
     const RETURN_ERROR_EDIT_BAD_FIELD = 2;
@@ -249,15 +387,68 @@ class PHPRunKeeper
         return json_decode($content, true);
     }
 
-    private function requestGet($contentType, $uri)
+    /**
+     * Request GET
+     *
+     * @param string $contentType            
+     * @param string $uri            
+     */
+    private function requestGet($contentType, $uri, $numPage = null, $pageSize = null)
     {
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = $contentType;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        $oResponse = $this->oClient->request('GET', $uri, array(
+        // URL
+        $url = $uri;
+        if (! empty($numPage) || ! empty($pageSize)) {
+            $url .= '?';
+            if (! empty($numPage)) {
+                $url .= 'page=' . $numPage;
+            }
+            if (! empty($numPage) && ! empty($pageSize)) {
+                $url .= '&';
+            }
+            if (! empty($pageSize)) {
+                $url .= 'pageSize=' . $pageSize;
+            }
+        }
+        $oResponse = $this->oClient->request('GET', $url, array(
             'headers' => $arrayHeaders
         ));
         return $this->treatResult($oResponse);
+    }
+
+    /**
+     * Request PUT
+     *
+     * @param string $contentType            
+     * @param string $uri            
+     * @param array $arrayData            
+     * @param array $arrayEdit            
+     */
+    private function requestPut($contentType, $uri, $arrayData, $arrayEdit)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, $arrayEdit)) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = $contentType;
+        $oResponse = $this->oClient->request('PUT', $uri, array(
+            'headers' => $arrayHeaders,
+            'json' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 200) {
+            return self::RETURN_SUCCESS;
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
     }
 
     /**
@@ -288,29 +479,7 @@ class PHPRunKeeper
      */
     public function setProfile(array $arrayData = array())
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'athlete_type'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_PROFILE;
-        $oResponse = $this->oClient->request('PUT', self::URI_PROFILE, array(
-            'headers' => $arrayHeaders,
-            'json' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 200) {
-            return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        return $this->requestPut(self::CONTENT_TYPE_PROFILE, self::URI_PROFILE, $arrayData, self::EDIT_PROFILE);
     }
 
     /**
@@ -331,55 +500,7 @@ class PHPRunKeeper
      */
     public function setSettings(array $arrayData = array())
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'share_fitness_activities',
-                'share_map',
-                'post_fitness_activity_facebook',
-                'post_fitness_activity_twitter',
-                'post_live_fitness_activity_facebook',
-                'post_live_fitness_activity_twitter',
-                'share_background_activities',
-                'post_background_activity_facebook',
-                'post_background_activity_twitter',
-                'share_sleep',
-                'post_sleep_facebook',
-                'post_sleep_twitter',
-                'share_nutrition',
-                'post_nutrition_facebook',
-                'post_nutrition_twitter',
-                'share_weight',
-                'post_weight_facebook',
-                'post_weight_twitter',
-                'share_general_measurements',
-                'post_general_measurements_facebook',
-                'post_general_measurements_twitter',
-                'share_diabetes',
-                'post_diabetes_facebook',
-                'post_diabetes_twitter',
-                'distance_units',
-                'weight_units',
-                'first_day_of_week'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_SETTINGS;
-        $oResponse = $this->oClient->request('PUT', self::URI_SETTINGS, array(
-            'headers' => $arrayHeaders,
-            'json' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 200) {
-            return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        return $this->requestPut(self::CONTENT_TYPE_SETTINGS, self::URI_SETTINGS, $arrayData, self::EDIT_SETTINGS);
     }
 
     /**
@@ -389,28 +510,7 @@ class PHPRunKeeper
      */
     public function getFitnessActivityFeed($numPage = null, $pageSize = null)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_FITNESS_ACTIVITY_FEED;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        // URL
-        $url = self::URI_FITNESS_ACTIVITIES;
-        if (! empty($numPage) || ! empty($pageSize)) {
-            $url .= '?';
-            if (! empty($numPage)) {
-                $url .= 'page=' . $numPage;
-            }
-            if (! empty($numPage) && ! empty($pageSize)) {
-                $url .= '&';
-            }
-            if (! empty($pageSize)) {
-                $url .= 'pageSize=' . $pageSize;
-            }
-        }
-        $oResponse = $this->oClient->request('GET', $url, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_FITNESS_ACTIVITY_FEED, self::URI_FITNESS_ACTIVITIES, $numPage, $pageSize);
     }
 
     /**
@@ -428,41 +528,9 @@ class PHPRunKeeper
      * @link https://runkeeper.com/developer/healthgraph/fitness-activities#past
      * @return mixed
      */
-    public function setFitnessActivity($uri, $arrayData)
+    public function setFitnessActivity($uri, array $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'type',
-                'secondary_type',
-                'equipment',
-                'start_time',
-                'total_distance',
-                'duration',
-                'average_heart_rate',
-                'heart_rate',
-                'total_calories',
-                'notes',
-                'path'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_FITNESS_ACTIVITY;
-        $oResponse = $this->oClient->request('PUT', $uri, array(
-            'headers' => $arrayHeaders,
-            'json' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 200) {
-            return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        return $this->requestPut(self::CONTENT_TYPE_FITNESS_ACTIVITY, $uri, $arrayData, self::EDIT_FITNESS_ACTIVITY);
     }
 
     /**
@@ -482,38 +550,7 @@ class PHPRunKeeper
      */
     public function setFitnessActivitySummary($uri, $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'type',
-                'secondary_type',
-                'equipment',
-                'start_time',
-                'total_distance',
-                'duration',
-                'average_heart_rate',
-                'heart_rate',
-                'total_calories',
-                'notes'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY;
-        $oResponse = $this->oClient->request('PUT', $uri, array(
-            'headers' => $arrayHeaders,
-            'json' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 200) {
-            return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        return $this->requestPut(self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY, $uri, $arrayData, self::EDIT_FITNESS_ACTIVITY_SUMMARY);
     }
 
     /**
@@ -589,28 +626,7 @@ class PHPRunKeeper
      */
     public function getStrengthActivityFeed($numPage = null, $pageSize = null)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_STRENGTH_ACTIVITY_FEED;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        // URL
-        $url = self::URI_STRENGTH_TRAINING_ACTIVITIES;
-        if (! empty($numPage) || ! empty($pageSize)) {
-            $url .= '?';
-            if (! empty($numPage)) {
-                $url .= 'page=' . $numPage;
-            }
-            if (! empty($numPage) && ! empty($pageSize)) {
-                $url .= '&';
-            }
-            if (! empty($pageSize)) {
-                $url .= 'pageSize=' . $pageSize;
-            }
-        }
-        $oResponse = $this->oClient->request('GET', $url, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_STRENGTH_ACTIVITY_FEED, self::URI_STRENGTH_TRAINING_ACTIVITIES, $numPage, $pageSize);
     }
 
     /**
@@ -620,32 +636,7 @@ class PHPRunKeeper
      */
     public function setStrengthActivity($uri, $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'start_time',
-                'total_calories',
-                'notes',
-                'exercises'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_STRENGTH_ACTIVITY;
-        $oResponse = $this->oClient->request('PUT', $uri, array(
-            'headers' => $arrayHeaders,
-            'json' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 200) {
-            return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        return $this->requestPut(self::CONTENT_TYPE_STRENGTH_ACTIVITY, $uri, $arrayData, self::EDIT_STRENGTH_ACTIVITY);
     }
 
     /**
@@ -703,28 +694,7 @@ class PHPRunKeeper
      */
     public function getWeightSetFeed($numPage = null, $pageSize = null)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_WEIGHT_SET_FEED;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        // URL
-        $url = self::URI_WEIGHT;
-        if (! empty($numPage) || ! empty($pageSize)) {
-            $url .= '?';
-            if (! empty($numPage)) {
-                $url .= 'page=' . $numPage;
-            }
-            if (! empty($numPage) && ! empty($pageSize)) {
-                $url .= '&';
-            }
-            if (! empty($pageSize)) {
-                $url .= 'pageSize=' . $pageSize;
-            }
-        }
-        $oResponse = $this->oClient->request('GET', $url, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_WEIGHT_SET_FEED, self::URI_WEIGHT, $numPage, $pageSize);
     }
 
     /**
@@ -744,33 +714,7 @@ class PHPRunKeeper
      */
     public function setWeightSet($uri, $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'weight',
-                'free_mass',
-                'fat_percent',
-                'mass_weight',
-                'bmi'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_WEIGHT_SET;
-        $oResponse = $this->oClient->request('PUT', $uri, array(
-            'headers' => $arrayHeaders,
-            'json' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 200) {
-            return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        return $this->requestPut(self::CONTENT_TYPE_WEIGHT_SET, $uri, $arrayData, self::EDIT_WEIGHT);
     }
 
     /**
@@ -820,28 +764,7 @@ class PHPRunKeeper
      */
     public function getBackgroundActivitySetFeed($numPage = null, $pageSize = null)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET_FEED;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        // URL
-        $url = self::URI_BACKGROUND_ACTIVITIES;
-        if (! empty($numPage) || ! empty($pageSize)) {
-            $url .= '?';
-            if (! empty($numPage)) {
-                $url .= 'page=' . $numPage;
-            }
-            if (! empty($numPage) && ! empty($pageSize)) {
-                $url .= '&';
-            }
-            if (! empty($pageSize)) {
-                $url .= 'pageSize=' . $pageSize;
-            }
-        }
-        $oResponse = $this->oClient->request('GET', $url, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET_FEED, self::URI_BACKGROUND_ACTIVITIES, $numPage, $pageSize);
     }
 
     /**
@@ -851,30 +774,7 @@ class PHPRunKeeper
      */
     public function setBackgroundActivitySet($uri, $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'calories_burned',
-                'steps'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET;
-        $oResponse = $this->oClient->request('PUT', $uri, array(
-            'headers' => $arrayHeaders,
-            'json' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 200) {
-            return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        return $this->requestPut(self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET, $uri, $arrayData, self::EDIT_BACKGROUND_ACTIVITY);
     }
 
     /**
@@ -921,28 +821,7 @@ class PHPRunKeeper
      */
     public function getSleepSetFeed($numPage = null, $pageSize = null)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_SLEEP_SET_FEED;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        // URL
-        $url = self::URI_SLEEP;
-        if (! empty($numPage) || ! empty($pageSize)) {
-            $url .= '?';
-            if (! empty($numPage)) {
-                $url .= 'page=' . $numPage;
-            }
-            if (! empty($numPage) && ! empty($pageSize)) {
-                $url .= '&';
-            }
-            if (! empty($pageSize)) {
-                $url .= 'pageSize=' . $pageSize;
-            }
-        }
-        $oResponse = $this->oClient->request('GET', $url, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_SLEEP_SET_FEED, self::URI_SLEEP, $numPage, $pageSize);
     }
 
     /**
@@ -952,34 +831,7 @@ class PHPRunKeeper
      */
     public function setSleepSet($uri, $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'total_sleep',
-                'deep',
-                'rem',
-                'light',
-                'awake',
-                'times_woken'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_SLEEP_SET;
-        $oResponse = $this->oClient->request('PUT', $uri, array(
-            'headers' => $arrayHeaders,
-            'json' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 200) {
-            return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        return $this->requestPut(self::CONTENT_TYPE_SLEEP_SET, $uri, $arrayData, self::EDIT_SLEEP);
     }
 
     /**
@@ -1030,28 +882,7 @@ class PHPRunKeeper
      */
     public function getNutritionSetFeed($numPage = null, $pageSize = null)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NUTRITION_SET_FEED;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        // URL
-        $url = self::URI_NUTRITION;
-        if (! empty($numPage) || ! empty($pageSize)) {
-            $url .= '?';
-            if (! empty($numPage)) {
-                $url .= 'page=' . $numPage;
-            }
-            if (! empty($numPage) && ! empty($pageSize)) {
-                $url .= '&';
-            }
-            if (! empty($pageSize)) {
-                $url .= 'pageSize=' . $pageSize;
-            }
-        }
-        $oResponse = $this->oClient->request('GET', $url, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_NUTRITION_SET_FEED, self::URI_NUTRITION, $numPage, $pageSize);
     }
 
     /**
@@ -1061,36 +892,7 @@ class PHPRunKeeper
      */
     public function setNutritionSet($uri, $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'calories',
-                'carbohydrates',
-                'fat',
-                'fiber',
-                'protein',
-                'sodium',
-                'water',
-                'meal'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NUTRITION_SET;
-        $oResponse = $this->oClient->request('PUT', $uri, array(
-            'headers' => $arrayHeaders,
-            'json' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 200) {
-            return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        return $this->requestPut(self::CONTENT_TYPE_NUTRITION_SET, $uri, $arrayData, self::EDIT_NUTRITION);
     }
 
     /**
@@ -1143,28 +945,7 @@ class PHPRunKeeper
      */
     public function getGeneralMeasurementSetFeed($numPage = null, $pageSize = null)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET_FEED;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        // URL
-        $url = self::URI_GENERAL_MEASUREMENTS;
-        if (! empty($numPage) || ! empty($pageSize)) {
-            $url .= '?';
-            if (! empty($numPage)) {
-                $url .= 'page=' . $numPage;
-            }
-            if (! empty($numPage) && ! empty($pageSize)) {
-                $url .= '&';
-            }
-            if (! empty($pageSize)) {
-                $url .= 'pageSize=' . $pageSize;
-            }
-        }
-        $oResponse = $this->oClient->request('GET', $url, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET_FEED, self::URI_GENERAL_MEASUREMENTS, $numPage, $pageSize);
     }
 
     /**
@@ -1174,52 +955,7 @@ class PHPRunKeeper
      */
     public function setGeneralMeasurementSet($uri, $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'systolic',
-                'diastolic',
-                'total_cholesterol',
-                'hdl',
-                'ldl',
-                'vitamin_d',
-                'hscrp',
-                'crp',
-                'tsh',
-                'uric_acid',
-                'resting_heartrate',
-                'blood_calcium',
-                'blood_magnesium',
-                'creatine_kinase',
-                'blood_vitamin_b12',
-                'blood_folic_acid',
-                'ferritin',
-                'il6',
-                'testosterone',
-                'blood_potassium',
-                'blood_sodium',
-                'blood_zinc',
-                'blood_chromium',
-                'white_cell_count'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET;
-        $oResponse = $this->oClient->request('PUT', $uri, array(
-            'headers' => $arrayHeaders,
-            'json' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 200) {
-            return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        return $this->requestPut(self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET, $uri, $arrayData, self::EDIT_GENERAL_MEASUREMENT);
     }
 
     /**
@@ -1288,28 +1024,7 @@ class PHPRunKeeper
      */
     public function getDiabeteMeasurementSetFeed($numPage = null, $pageSize = null)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET_FEED;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        // URL
-        $url = self::URI_DIABETES;
-        if (! empty($numPage) || ! empty($pageSize)) {
-            $url .= '?';
-            if (! empty($numPage)) {
-                $url .= 'page=' . $numPage;
-            }
-            if (! empty($numPage) && ! empty($pageSize)) {
-                $url .= '&';
-            }
-            if (! empty($pageSize)) {
-                $url .= 'pageSize=' . $pageSize;
-            }
-        }
-        $oResponse = $this->oClient->request('GET', $url, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET_FEED, self::URI_DIABETES, $numPage, $pageSize);
     }
 
     /**
@@ -1319,35 +1034,7 @@ class PHPRunKeeper
      */
     public function setDiabeteMeasurementSet($uri, $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'fasting_plasma_glucose_test',
-                'oral_glucose_tolerance_test',
-                'random_plasma_glucose_test',
-                'hemoglobin_a1c',
-                'insulin',
-                'c_peptide',
-                'triglyceride'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET;
-        $oResponse = $this->oClient->request('PUT', $uri, array(
-            'headers' => $arrayHeaders,
-            'json' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 200) {
-            return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        return $this->requestPut(self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET, $uri, $arrayData, self::EDIT_DIABETE_MEASUREMENT);
     }
 
     /**
@@ -1400,28 +1087,7 @@ class PHPRunKeeper
      */
     public function getRecords($numPage = null, $pageSize = null)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_RECORDS;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        // URL
-        $url = self::URI_RECORDS;
-        if (! empty($numPage) || ! empty($pageSize)) {
-            $url .= '?';
-            if (! empty($numPage)) {
-                $url .= 'page=' . $numPage;
-            }
-            if (! empty($numPage) && ! empty($pageSize)) {
-                $url .= '&';
-            }
-            if (! empty($pageSize)) {
-                $url .= 'pageSize=' . $pageSize;
-            }
-        }
-        $oResponse = $this->oClient->request('GET', $url, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_RECORDS, self::URI_RECORDS, $numPage, $pageSize);
     }
 
     /**
@@ -1431,28 +1097,7 @@ class PHPRunKeeper
      */
     public function getFriends($numPage = null, $pageSize = null)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_TEAM_FEED;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        // URL
-        $url = self::URI_TEAM;
-        if (! empty($numPage) || ! empty($pageSize)) {
-            $url .= '?';
-            if (! empty($numPage)) {
-                $url .= 'page=' . $numPage;
-            }
-            if (! empty($numPage) && ! empty($pageSize)) {
-                $url .= '&';
-            }
-            if (! empty($pageSize)) {
-                $url .= 'pageSize=' . $pageSize;
-            }
-        }
-        $oResponse = $this->oClient->request('GET', $url, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_TEAM_FEED, self::URI_TEAM, $numPage, $pageSize);
     }
 
     /**

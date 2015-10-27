@@ -95,14 +95,15 @@ class OAuth extends AbstractProvider
      * @link https://runkeeper.com/developer/healthgraph/error-messages
      * @throws IdentityProviderException
      * @param ResponseInterface $response            
-     * @param array $data Parsed response data
+     * @param array $data
+     *            Parsed response data
      * @return void
      * @see \League\OAuth2\Client\Provider\AbstractProvider::checkResponse()
      */
     protected function checkResponse(ResponseInterface $response, $data)
     {
         if ($response->getStatusCode() >= 400) {
-            throw new IdentityProviderException(isset($data['reason']) ? $data['reason'] : $response->getReasonPhrase(), $response->getStatusCode(), $response);
+            throw new IdentityProviderException(isset($data['reason']) ? $data['reason'] : $response->getReasonPhrase(), $response->getStatusCode(), (string) $response);
         }
     }
 
@@ -120,6 +121,7 @@ class OAuth extends AbstractProvider
 
     /**
      * (non-PHPdoc)
+     * 
      * @see \League\OAuth2\Client\Provider\AbstractProvider::parseResponse()
      */
     protected function parseResponse(ResponseInterface $response)
