@@ -451,6 +451,31 @@ class PHPRunKeeper
         }
     }
 
+    private function requestPost($contentType, $uri, $arrayData, $arrayAdd)
+    {
+        if (empty($arrayData)) {
+            return self::RETURN_SUCCESS;
+        }
+        
+        foreach ($arrayData as $key => $value) {
+            if (! in_array($key, $arrayAdd)) {
+                return self::RETURN_ERROR_EDIT_BAD_FIELD;
+            }
+        }
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $arrayHeaders['Content-Type'] = $contentType;
+        $oResponse = $this->oClient->request('POST', $uri, array(
+            'headers' => $arrayHeaders,
+            'form_params' => $arrayData
+        ));
+        if ($oResponse->getStatusCode() == 201) {
+            return $oResponse->getHeader('Location');
+        } else {
+            return self::RETURN_ERROR_SAVE;
+        }
+    }
+
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/profile
@@ -561,42 +586,11 @@ class PHPRunKeeper
      */
     public function addFitnessActivity(array $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'type',
-                'secondary_type',
-                'equipment',
-                'start_time',
-                'total_distance',
-                'duration',
-                'average_heart_rate',
-                'heart_rate',
-                'total_calories',
-                'notes',
-                'path',
-                'post_to_facebook',
-                'post_to_twitter',
-                'detect_pauses'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_FITNESS_ACTIVITY;
-        $oResponse = $this->oClient->request('POST', self::URI_FITNESS_ACTIVITIES, array(
-            'headers' => $arrayHeaders,
-            'form_params' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 201) {
-            return $oResponse->getHeader('Location');
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        $arrayAdd = self::EDIT_FITNESS_ACTIVITY;
+        $arrayAdd[] = 'post_to_facebook';
+        $arrayAdd[] = 'post_to_twitter';
+        $arrayAdd[] = 'detect_pauses';
+        return $this->requestPost(self::CONTENT_TYPE_NEW_FITNESS_ACTIVITY, self::URI_FITNESS_ACTIVITIES, $arrayData, $arrayAdd);
     }
 
     /**
@@ -647,34 +641,10 @@ class PHPRunKeeper
      */
     public function addStrengthActivity(array $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'start_time',
-                'notes',
-                'total_calories',
-                'exercises',
-                'post_to_facebook',
-                'post_to_twitter'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_STRENGTH_ACTIVITY;
-        $oResponse = $this->oClient->request('POST', self::URI_STRENGTH_TRAINING_ACTIVITIES, array(
-            'headers' => $arrayHeaders,
-            'form_params' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 201) {
-            return $oResponse->getHeader('Location');
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        $arrayAdd = self::EDIT_STRENGTH_ACTIVITY;
+        $arrayAdd[] = 'post_to_facebook';
+        $arrayAdd[] = 'post_to_twitter';
+        return $this->requestPost(self::CONTENT_TYPE_NEW_STRENGTH_ACTIVITY, self::URI_STRENGTH_TRAINING_ACTIVITIES, $arrayData, $arrayAdd);
     }
 
     /**
@@ -725,36 +695,11 @@ class PHPRunKeeper
      */
     public function addWeightSet(array $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'timestamp',
-                'weight',
-                'free_mass',
-                'fat_percent',
-                'mass_weight',
-                'bmi',
-                'post_to_facebook',
-                'post_to_twitter'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_WEIGHT_SET;
-        $oResponse = $this->oClient->request('POST', self::URI_WEIGHT, array(
-            'headers' => $arrayHeaders,
-            'form_params' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 201) {
-            return $oResponse->getHeader('Location');
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        $arrayAdd = self::EDIT_WEIGHT;
+        $arrayAdd[] = 'timestamp';
+        $arrayAdd[] = 'post_to_facebook';
+        $arrayAdd[] = 'post_to_twitter';
+        return $this->requestPost(self::CONTENT_TYPE_NEW_WEIGHT_SET, self::URI_WEIGHT, $arrayData, $arrayAdd);
     }
 
     /**
@@ -785,33 +730,11 @@ class PHPRunKeeper
      */
     public function addBackgroundActivitySet(array $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'timestamp',
-                'calories_burned',
-                'steps',
-                'post_to_facebook',
-                'post_to_twitter'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_BACKGROUND_ACTIVITY_SET;
-        $oResponse = $this->oClient->request('POST', self::URI_BACKGROUND_ACTIVITIES, array(
-            'headers' => $arrayHeaders,
-            'form_params' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 201) {
-            return $oResponse->getHeader('Location');
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        $arrayAdd = self::EDIT_BACKGROUND_ACTIVITY;
+        $arrayAdd[] = 'timestamp';
+        $arrayAdd[] = 'post_to_facebook';
+        $arrayAdd[] = 'post_to_twitter';
+        return $this->requestPost(self::CONTENT_TYPE_NEW_BACKGROUND_ACTIVITY_SET, self::URI_BACKGROUND_ACTIVITIES, $arrayData, $arrayAdd);
     }
 
     /**
@@ -842,37 +765,11 @@ class PHPRunKeeper
      */
     public function addSleepSet(array $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'timestamp',
-                'total_sleep',
-                'deep',
-                'rem',
-                'light',
-                'awake',
-                'times_woken',
-                'post_to_facebook',
-                'post_to_twitter'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_SLEEP_SET;
-        $oResponse = $this->oClient->request('POST', self::URI_SLEEP, array(
-            'headers' => $arrayHeaders,
-            'form_params' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 201) {
-            return $oResponse->getHeader('Location');
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        $arrayAdd = self::EDIT_SLEEP;
+        $arrayAdd[] = 'timestamp';
+        $arrayAdd[] = 'post_to_facebook';
+        $arrayAdd[] = 'post_to_twitter';
+        return $this->requestPost(self::CONTENT_TYPE_NEW_SLEEP_SET, self::URI_SLEEP, $arrayData, $arrayAdd);
     }
 
     /**
@@ -903,39 +800,11 @@ class PHPRunKeeper
      */
     public function addNutritionSet(array $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'timestamp',
-                'calories',
-                'carbohydrates',
-                'fat',
-                'fiber',
-                'protein',
-                'sodium',
-                'water',
-                'meal',
-                'post_to_facebook',
-                'post_to_twitter'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_NUTRITION_SET;
-        $oResponse = $this->oClient->request('POST', self::URI_NUTRITION, array(
-            'headers' => $arrayHeaders,
-            'form_params' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 201) {
-            return $oResponse->getHeader('Location');
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        $arrayAdd = self::EDIT_NUTRITION;
+        $arrayAdd[] = 'timestamp';
+        $arrayAdd[] = 'post_to_facebook';
+        $arrayAdd[] = 'post_to_twitter';
+        return $this->requestPost(self::CONTENT_TYPE_NEW_NUTRITION_SET, self::URI_NUTRITION, $arrayData, $arrayAdd);
     }
 
     /**
@@ -966,55 +835,11 @@ class PHPRunKeeper
      */
     public function addGeneralMeasurementSet(array $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'timestamp',
-                'systolic',
-                'diastolic',
-                'total_cholesterol',
-                'hdl',
-                'ldl',
-                'vitamin_d',
-                'hscrp',
-                'crp',
-                'tsh',
-                'uric_acid',
-                'resting_heartrate',
-                'blood_calcium',
-                'blood_magnesium',
-                'creatine_kinase',
-                'blood_vitamin_b12',
-                'blood_folic_acid',
-                'ferritin',
-                'il6',
-                'testosterone',
-                'blood_potassium',
-                'blood_sodium',
-                'blood_zinc',
-                'blood_chromium',
-                'white_cell_count',
-                'post_to_facebook',
-                'post_to_twitter'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_GENERAL_MEASUREMENT_SET;
-        $oResponse = $this->oClient->request('POST', self::URI_GENERAL_MEASUREMENTS, array(
-            'headers' => $arrayHeaders,
-            'form_params' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 201) {
-            return $oResponse->getHeader('Location');
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        $arrayAdd = self::EDIT_GENERAL_MEASUREMENT;
+        $arrayAdd[] = 'timestamp';
+        $arrayAdd[] = 'post_to_facebook';
+        $arrayAdd[] = 'post_to_twitter';
+        return $this->requestPost(self::CONTENT_TYPE_NEW_GENERAL_MEASUREMENT_SET, self::URI_GENERAL_MEASUREMENTS, $arrayData, $arrayAdd);
     }
 
     /**
@@ -1045,39 +870,12 @@ class PHPRunKeeper
      */
     public function addDiabeteMeasurementSet(array $arrayData)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach ($arrayData as $key => $value) {
-            if (! in_array($key, array(
-                'timestamp',
-                'fasting_plasma_glucose_test',
-                'oral_glucose_tolerance_test',
-                'random_plasma_glucose_test',
-                'hemoglobin_a1c',
-                'insulin',
-                'c_peptide',
-                'triglyceride',
-                'white_cell_count',
-                'post_to_facebook',
-                'post_to_twitter'
-            ))) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_DIABETE_MEASUREMENT_SET;
-        $oResponse = $this->oClient->request('POST', self::URI_DIABETES, array(
-            'headers' => $arrayHeaders,
-            'form_params' => $arrayData
-        ));
-        if ($oResponse->getStatusCode() == 201) {
-            return $oResponse->getHeader('Location');
-        } else {
-            return self::RETURN_ERROR_SAVE;
-        }
+        $arrayAdd = self::EDIT_DIABETE_MEASUREMENT;
+        $arrayAdd[] = 'timestamp';
+        $arrayAdd[] = 'white_cell_count';
+        $arrayAdd[] = 'post_to_facebook';
+        $arrayAdd[] = 'post_to_twitter';
+        return $this->requestPost(self::CONTENT_TYPE_NEW_DIABETE_MEASUREMENT_SET, self::URI_DIABETES, $arrayData, $arrayAdd);
     }
 
     /**
