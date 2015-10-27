@@ -114,19 +114,31 @@ class PHPRunKeeper
     const RETURN_ERROR_EDIT_BAD_FIELD = 2;
 
     const RETURN_ERROR_SAVE = 3;
-    
+
     const URI_BACKGROUND_ACTIVITIES = '/backgroundActivities';
+
     const URI_DIABETES = '/diabetes';
+
     const URI_FITNESS_ACTIVITIES = '/fitnessActivities';
+
     const URI_GENERAL_MEASUREMENTS = '/generalMeasurements';
+
     const URI_NUTRITION = '/nutrition';
+
     const URI_PROFILE = '/profile';
+
     const URI_RECORDS = '/records';
+
     const URI_SETTINGS = '/settings';
+
     const URI_SLEEP = '/sleep';
+
     const URI_STRENGTH_TRAINING_ACTIVITIES = '/strengthTrainingActivities';
+
     const URI_TEAM = '/team';
+
     const URI_USER = '/user';
+
     const URI_WEIGHT = '/weight';
 
     /**
