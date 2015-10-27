@@ -7,6 +7,7 @@ use League\OAuth2\Client\Tool\BearerAuthorizationTrait;
 use League\OAuth2\Client\Provider\AbstractProvider as AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Http\Message\ResponseInterface;
+use UnexpectedValueException;
 
 /**
  * RunKeeper OAuth
@@ -38,7 +39,7 @@ class OAuth extends AbstractProvider
         $collaborators['httpClient'] = new HttpClient(array(
             'verify' => false
         ));
-        return parent::__construct($options, $collaborators);
+        parent::__construct($options, $collaborators);
     }
 
     /**
@@ -94,9 +95,9 @@ class OAuth extends AbstractProvider
      * @link https://runkeeper.com/developer/healthgraph/error-messages
      * @throws IdentityProviderException
      * @param ResponseInterface $response            
-     * @param string $data
-     *            Parsed response data
+     * @param array $data Parsed response data
      * @return void
+     * @see \League\OAuth2\Client\Provider\AbstractProvider::checkResponse()
      */
     protected function checkResponse(ResponseInterface $response, $data)
     {
@@ -117,6 +118,10 @@ class OAuth extends AbstractProvider
         return new RKResourceOwner($response);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \League\OAuth2\Client\Provider\AbstractProvider::parseResponse()
+     */
     protected function parseResponse(ResponseInterface $response)
     {
         $content = (string) $response->getBody();

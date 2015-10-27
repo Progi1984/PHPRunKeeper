@@ -114,6 +114,20 @@ class PHPRunKeeper
     const RETURN_ERROR_EDIT_BAD_FIELD = 2;
 
     const RETURN_ERROR_SAVE = 3;
+    
+    const URI_BACKGROUND_ACTIVITIES = '/backgroundActivities';
+    const URI_DIABETES = '/diabetes';
+    const URI_FITNESS_ACTIVITIES = '/fitnessActivities';
+    const URI_GENERAL_MEASUREMENTS = '/generalMeasurements';
+    const URI_NUTRITION = '/nutrition';
+    const URI_PROFILE = '/profile';
+    const URI_RECORDS = '/records';
+    const URI_SETTINGS = '/settings';
+    const URI_SLEEP = '/sleep';
+    const URI_STRENGTH_TRAINING_ACTIVITIES = '/strengthTrainingActivities';
+    const URI_TEAM = '/team';
+    const URI_USER = '/user';
+    const URI_WEIGHT = '/weight';
 
     /**
      *
@@ -196,7 +210,7 @@ class PHPRunKeeper
 
     /**
      *
-     * @return multitype:string
+     * @return string[]
      */
     private function getHeaders()
     {
@@ -223,17 +237,12 @@ class PHPRunKeeper
         return json_decode($content, true);
     }
 
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/profile
-     * @return mixed
-     */
-    public function getUser()
+    private function requestGet($contentType, $uri)
     {
         $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_USER;
+        $arrayHeaders['Content-Type'] = $contentType;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        $oResponse = $this->oClient->request('GET', '/user', array(
+        $oResponse = $this->oClient->request('GET', $uri, array(
             'headers' => $arrayHeaders
         ));
         return $this->treatResult($oResponse);
@@ -244,15 +253,19 @@ class PHPRunKeeper
      * @link https://runkeeper.com/developer/healthgraph/profile
      * @return mixed
      */
+    public function getUser()
+    {
+        return $this->requestGet(self::CONTENT_TYPE_USER, self::URI_USER);
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/profile
+     * @return mixed
+     */
     public function getProfile()
     {
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_PROFILE;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        $oResponse = $this->oClient->request('GET', '/profile', array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_PROFILE, self::URI_PROFILE);
     }
 
     /**
@@ -277,7 +290,7 @@ class PHPRunKeeper
         
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_PROFILE;
-        $oResponse = $this->oClient->request('PUT', '/profile', array(
+        $oResponse = $this->oClient->request('PUT', self::URI_PROFILE, array(
             'headers' => $arrayHeaders,
             'json' => $arrayData
         ));
@@ -295,13 +308,7 @@ class PHPRunKeeper
      */
     public function getSettings()
     {
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_SETTINGS;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        $oResponse = $this->oClient->request('GET', '/settings', array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_SETTINGS, self::URI_SETTINGS);
     }
 
     /**
@@ -352,7 +359,7 @@ class PHPRunKeeper
         
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_SETTINGS;
-        $oResponse = $this->oClient->request('PUT', '/settings', array(
+        $oResponse = $this->oClient->request('PUT', self::URI_SETTINGS, array(
             'headers' => $arrayHeaders,
             'json' => $arrayData
         ));
@@ -375,7 +382,7 @@ class PHPRunKeeper
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_FITNESS_ACTIVITY_FEED;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
         // URL
-        $url = '/fitnessActivities';
+        $url = self::URI_FITNESS_ACTIVITIES;
         if (! empty($numPage) || ! empty($pageSize)) {
             $url .= '?';
             if (! empty($numPage)) {
@@ -401,14 +408,7 @@ class PHPRunKeeper
      */
     public function getFitnessActivity($uri)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_FITNESS_ACTIVITY;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        $oResponse = $this->oClient->request('GET', $uri, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_FITNESS_ACTIVITY, $uri);
     }
 
     /**
@@ -460,14 +460,7 @@ class PHPRunKeeper
      */
     public function getFitnessActivitySummary($uri)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        $oResponse = $this->oClient->request('GET', $uri, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY, $uri);
     }
 
     /**
@@ -546,7 +539,7 @@ class PHPRunKeeper
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_FITNESS_ACTIVITY;
-        $oResponse = $this->oClient->request('POST', $uri, array(
+        $oResponse = $this->oClient->request('POST', self::URI_FITNESS_ACTIVITIES, array(
             'headers' => $arrayHeaders,
             'form_params' => $arrayData
         ));
@@ -589,7 +582,7 @@ class PHPRunKeeper
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_STRENGTH_ACTIVITY_FEED;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
         // URL
-        $url = '/strengthTrainingActivities';
+        $url = self::URI_STRENGTH_TRAINING_ACTIVITIES;
         if (! empty($numPage) || ! empty($pageSize)) {
             $url .= '?';
             if (! empty($numPage)) {
@@ -670,7 +663,7 @@ class PHPRunKeeper
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_STRENGTH_ACTIVITY;
-        $oResponse = $this->oClient->request('POST', $uri, array(
+        $oResponse = $this->oClient->request('POST', self::URI_STRENGTH_TRAINING_ACTIVITIES, array(
             'headers' => $arrayHeaders,
             'form_params' => $arrayData
         ));
@@ -688,14 +681,7 @@ class PHPRunKeeper
      */
     public function getStrengthActivity($uri)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_STRENGTH_ACTIVITY;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        $oResponse = $this->oClient->request('GET', $uri, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_STRENGTH_ACTIVITY, $uri);
     }
 
     /**
@@ -710,7 +696,7 @@ class PHPRunKeeper
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_WEIGHT_SET_FEED;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
         // URL
-        $url = '/weight';
+        $url = self::URI_WEIGHT;
         if (! empty($numPage) || ! empty($pageSize)) {
             $url .= '?';
             if (! empty($numPage)) {
@@ -736,14 +722,7 @@ class PHPRunKeeper
      */
     public function getWeightSet($uri)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_WEIGHT_SET;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        $oResponse = $this->oClient->request('GET', $uri, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_WEIGHT_SET, $uri);
     }
 
     /**
@@ -811,7 +790,7 @@ class PHPRunKeeper
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_WEIGHT_SET;
-        $oResponse = $this->oClient->request('POST', $uri, array(
+        $oResponse = $this->oClient->request('POST', self::URI_WEIGHT, array(
             'headers' => $arrayHeaders,
             'form_params' => $arrayData
         ));
@@ -834,7 +813,7 @@ class PHPRunKeeper
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET_FEED;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
         // URL
-        $url = '/backgroundActivities';
+        $url = self::URI_BACKGROUND_ACTIVITIES;
         if (! empty($numPage) || ! empty($pageSize)) {
             $url .= '?';
             if (! empty($numPage)) {
@@ -912,7 +891,7 @@ class PHPRunKeeper
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_BACKGROUND_ACTIVITY_SET;
-        $oResponse = $this->oClient->request('POST', $uri, array(
+        $oResponse = $this->oClient->request('POST', self::URI_BACKGROUND_ACTIVITIES, array(
             'headers' => $arrayHeaders,
             'form_params' => $arrayData
         ));
@@ -935,7 +914,7 @@ class PHPRunKeeper
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_SLEEP_SET_FEED;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
         // URL
-        $url = '/sleep';
+        $url = self::URI_SLEEP;
         if (! empty($numPage) || ! empty($pageSize)) {
             $url .= '?';
             if (! empty($numPage)) {
@@ -1021,7 +1000,7 @@ class PHPRunKeeper
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_SLEEP_SET;
-        $oResponse = $this->oClient->request('POST', $uri, array(
+        $oResponse = $this->oClient->request('POST', self::URI_SLEEP, array(
             'headers' => $arrayHeaders,
             'form_params' => $arrayData
         ));
@@ -1044,7 +1023,7 @@ class PHPRunKeeper
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NUTRITION_SET_FEED;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
         // URL
-        $url = '/nutrition';
+        $url = self::URI_NUTRITION;
         if (! empty($numPage) || ! empty($pageSize)) {
             $url .= '?';
             if (! empty($numPage)) {
@@ -1134,7 +1113,7 @@ class PHPRunKeeper
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_NUTRITION_SET;
-        $oResponse = $this->oClient->request('POST', $uri, array(
+        $oResponse = $this->oClient->request('POST', self::URI_NUTRITION, array(
             'headers' => $arrayHeaders,
             'form_params' => $arrayData
         ));
@@ -1157,7 +1136,7 @@ class PHPRunKeeper
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET_FEED;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
         // URL
-        $url = '/generalMeasurements';
+        $url = self::URI_GENERAL_MEASUREMENTS;
         if (! empty($numPage) || ! empty($pageSize)) {
             $url .= '?';
             if (! empty($numPage)) {
@@ -1279,7 +1258,7 @@ class PHPRunKeeper
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_GENERAL_MEASUREMENT_SET;
-        $oResponse = $this->oClient->request('POST', $uri, array(
+        $oResponse = $this->oClient->request('POST', self::URI_GENERAL_MEASUREMENTS, array(
             'headers' => $arrayHeaders,
             'form_params' => $arrayData
         ));
@@ -1302,7 +1281,7 @@ class PHPRunKeeper
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET_FEED;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
         // URL
-        $url = '/diabetes';
+        $url = self::URI_DIABETES;
         if (! empty($numPage) || ! empty($pageSize)) {
             $url .= '?';
             if (! empty($numPage)) {
@@ -1391,7 +1370,7 @@ class PHPRunKeeper
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_NEW_DIABETE_MEASUREMENT_SET;
-        $oResponse = $this->oClient->request('POST', $uri, array(
+        $oResponse = $this->oClient->request('POST', self::URI_DIABETES, array(
             'headers' => $arrayHeaders,
             'form_params' => $arrayData
         ));
@@ -1414,7 +1393,7 @@ class PHPRunKeeper
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_RECORDS;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
         // URL
-        $url = '/records';
+        $url = self::URI_RECORDS;
         if (! empty($numPage) || ! empty($pageSize)) {
             $url .= '?';
             if (! empty($numPage)) {
@@ -1445,7 +1424,7 @@ class PHPRunKeeper
         $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_TEAM_FEED;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
         // URL
-        $url = '/team';
+        $url = self::URI_TEAM;
         if (! empty($numPage) || ! empty($pageSize)) {
             $url .= '?';
             if (! empty($numPage)) {
@@ -1471,14 +1450,7 @@ class PHPRunKeeper
      */
     public function getMember($uri)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_MEMBER;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        $oResponse = $this->oClient->request('GET', $uri, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_MEMBER, $uri);
     }
 
     /**
@@ -1488,14 +1460,7 @@ class PHPRunKeeper
      */
     public function getCommentThread($uri)
     {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $arrayHeaders['Content-Type'] = self::CONTENT_TYPE_COMMENT_THREAD;
-        $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        $oResponse = $this->oClient->request('GET', $uri, array(
-            'headers' => $arrayHeaders
-        ));
-        return $this->treatResult($oResponse);
+        return $this->requestGet(self::CONTENT_TYPE_COMMENT_THREAD, $uri);
     }
 
     /**
@@ -1514,7 +1479,7 @@ class PHPRunKeeper
         $oResponse = $this->oClient->request('POST', $uri, array(
             'headers' => $arrayHeaders,
             'json' => array(
-                'comment' => $comment,
+                'comment' => $comment
             )
         ));
         if ($oResponse->getStatusCode() == 200) {
