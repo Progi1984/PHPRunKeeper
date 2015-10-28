@@ -122,7 +122,6 @@ class OAuth extends AbstractProvider
 
     /**
      * (non-PHPdoc)
-     * 
      * @see \League\OAuth2\Client\Provider\AbstractProvider::parseResponse()
      */
     protected function parseResponse(ResponseInterface $response)

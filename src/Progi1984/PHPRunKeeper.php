@@ -380,22 +380,12 @@ class PHPRunKeeper
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = $contentType;
         $arrayHeaders['Accept'] = $arrayHeaders['Content-Type'];
-        // URL
-        $url = $uri;
-        if (! empty($numPage) || ! empty($pageSize)) {
-            $url .= '?';
-            if (! empty($numPage)) {
-                $url .= 'page=' . $numPage;
-            }
-            if (! empty($numPage) && ! empty($pageSize)) {
-                $url .= '&';
-            }
-            if (! empty($pageSize)) {
-                $url .= 'pageSize=' . $pageSize;
-            }
-        }
-        $oResponse = $this->oClient->request('GET', $url, array(
-            'headers' => $arrayHeaders
+        $oResponse = $this->oClient->request('GET', $uri, array(
+            'headers' => $arrayHeaders,
+            'query' => array(
+                'page' => $numPage, 
+                'pageSize' => $pageSize 
+            )
         ));
         
         $content = (string) $oResponse->getBody();
@@ -437,9 +427,8 @@ class PHPRunKeeper
         ));
         if ($oResponse->getStatusCode() == 200) {
             return self::RETURN_SUCCESS;
-        } else {
-            return self::RETURN_ERROR_SAVE;
         }
+        return self::RETURN_ERROR_SAVE;
     }
 
     /**
@@ -468,9 +457,8 @@ class PHPRunKeeper
         ));
         if ($oResponse->getStatusCode() == 201) {
             return $oResponse->getHeader('Location');
-        } else {
-            return self::RETURN_ERROR_SAVE;
         }
+        return self::RETURN_ERROR_SAVE;
     }
 
     /**
