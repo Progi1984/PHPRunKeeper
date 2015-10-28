@@ -405,18 +405,13 @@ class PHPRunKeeper
      * @param string $contentType
      * @param string $uri
      * @param array $arrayData
-     * @param array $arrayEdit
+     * @param string[] $arrayEdit
      */
-    private function requestPut($contentType, $uri, $arrayData, $arrayEdit)
+    private function requestPut($contentType, $uri, array $arrayData, $arrayEdit)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
-        }
-        
-        foreach (array_keys($arrayData) as $key) {
-            if (! in_array($key, $arrayEdit)) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
+        $arrayDiff = array_diff(array_keys($arrayData), $arrayEdit);
+        if (!empty($arrayDiff)) {
+            return self::RETURN_ERROR_EDIT_BAD_FIELD;
         }
         
         $arrayHeaders = $this->getHeaders();
@@ -435,19 +430,16 @@ class PHPRunKeeper
      *
      * @param string $contentType
      * @param string $uri
+     * @param array $arrayData
      * @param string[] $arrayAdd
      */
-    private function requestPost($contentType, $uri, $arrayData, $arrayAdd)
+    private function requestPost($contentType, $uri, array $arrayData, $arrayAdd)
     {
-        if (empty($arrayData)) {
-            return self::RETURN_SUCCESS;
+        $arrayDiff = array_diff(array_keys($arrayData), $arrayAdd);
+        if (!empty($arrayDiff)) {
+            return self::RETURN_ERROR_EDIT_BAD_FIELD;
         }
         
-        foreach (array_keys($arrayData) as $key) {
-            if (! in_array($key, $arrayAdd)) {
-                return self::RETURN_ERROR_EDIT_BAD_FIELD;
-            }
-        }
         // Headers
         $arrayHeaders = $this->getHeaders();
         $arrayHeaders['Content-Type'] = $contentType;

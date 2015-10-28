@@ -135,10 +135,6 @@ class OAuth extends AbstractProvider
         try {
             return $this->parseJson($content);
         } catch (UnexpectedValueException $e) {
-            if (strpos($type, 'json') !== false) {
-                throw $e;
-            }
-
             return $content;
         }
     }
