@@ -15,12 +15,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     /**
      *
-     * @var HttpClient
-     */
-    protected $oClient;
-
-    /**
-     *
      * @var OauthAccessToken
      */
     protected $oAccessToken;
@@ -183,7 +177,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function setFitnessActivitySummary($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY, $uri, $arrayData, $this->editFitnessActivitySummary);
+        return $this->requestPut(self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY, $uri, $arrayData, $this->editFitnessActSum );
     }
 
     /**
@@ -333,7 +327,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function setBackgroundActivitySet($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET, $uri, $arrayData, $this->editBackgroundActivity);
+        return $this->requestPut(self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET, $uri, $arrayData, $this->editBkgActivity);
     }
 
     /**
@@ -344,7 +338,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addBackgroundActivitySet(array $arrayData)
     {
-        $arrayAdd = $this->editBackgroundActivity;
+        $arrayAdd = $this->editBkgActivity;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -444,7 +438,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function setGeneralMeasurementSet($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET, $uri, $arrayData, $this->editGeneralMeasurement);
+        return $this->requestPut(self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET, $uri, $arrayData, $this->editGenMeasurement);
     }
 
     /**
@@ -455,7 +449,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addGeneralMeasurementSet(array $arrayData)
     {
-        $arrayAdd = $this->editGeneralMeasurement;
+        $arrayAdd = $this->editGenMeasurement;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -481,7 +475,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function setDiabeteMeasurementSet($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET, $uri, $arrayData, $this->editDiabeteMeasurement);
+        return $this->requestPut(self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET, $uri, $arrayData, $this->editDiabeteMeasure);
     }
 
     /**
@@ -492,7 +486,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addDiabeteMeasurementSet(array $arrayData)
     {
-        $arrayAdd = $this->editDiabeteMeasurement;
+        $arrayAdd = $this->editDiabeteMeasure;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'white_cell_count';
         $arrayAdd[] = 'post_to_facebook';

@@ -1,6 +1,7 @@
 <?php
 namespace Progi1984\PHPRunKeeper;
 
+use Progi1984\PHPRunKeeper;
 /**
  * @author Progi1984
  */
@@ -139,12 +140,12 @@ class RunKeeperApi
 
     const URI_WEIGHT = '/weight';
 
-    protected $editBackgroundActivity = array(
+    protected $editBkgActivity = array(
         'calories_burned',
         'steps'
     );
     
-    protected $editDiabeteMeasurement = array(
+    protected $editDiabeteMeasure = array(
         'fasting_plasma_glucose_test',
         'oral_glucose_tolerance_test',
         'random_plasma_glucose_test',
@@ -168,7 +169,7 @@ class RunKeeperApi
         'path'
     );
     
-    protected $editFitnessActivitySummary = array(
+    protected $editFitnessActSum = array(
         'type',
         'secondary_type',
         'equipment',
@@ -181,7 +182,7 @@ class RunKeeperApi
         'notes'
     );
     
-    protected $editGeneralMeasurement = array(
+    protected $editGenMeasurement = array(
         'systolic',
         'diastolic',
         'total_cholesterol',
@@ -282,6 +283,12 @@ class RunKeeperApi
      * @var string
      */
     protected $endPoint = 'https://api.runkeeper.com/';
+    
+    /**
+     *
+     * @var HttpClient
+     */
+    protected $oClient;
 
     /**
      *
@@ -289,9 +296,12 @@ class RunKeeperApi
      */
     protected function getHeaders()
     {
-        return array(
-            'Authorization' => 'Bearer ' . $this->getAccessToken()->getToken()
-        );
+        if ($this instanceof PHPRunKeeper) {
+            return array(
+                'Authorization' => 'Bearer ' . $this->getAccessToken()->getToken()
+            );
+        }
+        return array();
     }
     
     /**
