@@ -5,6 +5,30 @@ use \League\OAuth2\Client\Token\AccessToken as OauthAccessToken;
 use \GuzzleHttp\Client as HttpClient;
 use \GuzzleHttp\Psr7\Response as HttpResponse;
 
+/**
+ * 
+ * @author Progi1984
+ *
+ * @method mixed getCommentThread(string $uri)
+ * @method mixed getFitnessActivity(string $uri)
+ * @method mixed getFitnessActivitySummary(string $uri)
+ * @method mixed getMember(string $uri)
+ * @method mixed getProfile()
+ * @method mixed getSettings()
+ * @method mixed getStrengthActivity(string $uri)
+ * @method mixed getUser()
+ * @method mixed getWeightSet(string $uri)
+ * @method mixed getBackgroundActivitySetFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getDiabeteMeasurementSetFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getFitnessActivityFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getFriends(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getGeneralMeasurementSetFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getNutritionSetFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getRecords(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getSleepSetFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getStrengthActivityFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getWeightSetFeed(integer $numPage = null, integer $pageSize = null)
+ */
 class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 {
     /**
@@ -18,7 +42,98 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      * @var OauthAccessToken
      */
     protected $oAccessToken;
+    
+    /**
+     * 
+     * @var string[][]
+     */
+    protected $callGetSimple = array(
+        'getProfile' => array(
+            'contentType' => self::CONTENT_TYPE_PROFILE,
+            'uri' => self::URI_PROFILE,
+        ),
+        'getSettings' => array(
+            'contentType' => self::CONTENT_TYPE_SETTINGS,
+            'uri' => self::URI_SETTINGS,
+        ),
+        'getUser' => array(
+            'contentType' => self::CONTENT_TYPE_USER,
+            'uri' => self::URI_USER,
+        )
+    );
+    
+    /**
+     *
+     * @var string[][]
+     */
+    protected $callGetUri = array(
+        'getCommentThread' => array(
+            'contentType' => self::CONTENT_TYPE_COMMENT_THREAD,
+        ),
+        'getFitnessActivity' => array(
+            'contentType' => self::CONTENT_TYPE_FITNESS_ACTIVITY,
+        ),
+        'getFitnessActivitySummary' => array(
+            'contentType' => self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY,
+        ),
+        'getMember' => array(
+            'contentType' => self::CONTENT_TYPE_MEMBER,
+        ),
+        'getStrengthActivity' => array(
+            'contentType' => self::CONTENT_TYPE_STRENGTH_ACTIVITY,
+        ),
+        'getWeightSet' => array(
+            'contentType' => self::CONTENT_TYPE_WEIGHT_SET,
+        ),
+    );
 
+    /**
+     * 
+     * @var string[][]
+     */
+    protected $callGetComplex = array(
+        'getBackgroundActivitySetFeed' => array(
+            'contentType' => self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET_FEED,
+            'uri' => self::URI_BACKGROUND_ACTIVITIES,
+        ),
+        'getDiabeteMeasurementSetFeed' => array(
+            'contentType' => self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET_FEED,
+            'uri' => self::URI_DIABETES,
+        ),
+        'getFitnessActivityFeed' => array(
+            'contentType' => self::CONTENT_TYPE_FITNESS_ACTIVITY_FEED,
+            'uri' => self::URI_FITNESS_ACTIVITIES,
+        ),
+        'getFriends' => array(
+            'contentType' => self::CONTENT_TYPE_TEAM_FEED,
+            'uri' => self::URI_TEAM,
+        ),
+        'getGeneralMeasurementSetFeed' => array(
+            'contentType' => self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET_FEED,
+            'uri' => self::URI_GENERAL_MEASUREMENTS,
+        ),
+        'getNutritionSetFeed' => array(
+            'contentType' => self::CONTENT_TYPE_NUTRITION_SET_FEED,
+            'uri' => self::URI_NUTRITION,
+        ),
+        'getRecords' => array(
+            'contentType' => self::CONTENT_TYPE_RECORDS,
+            'uri' => self::URI_RECORDS,
+        ),
+        'getSleepSetFeed' => array(
+            'contentType' => self::CONTENT_TYPE_SLEEP_SET_FEED,
+            'uri' => self::URI_SLEEP,
+        ),
+        'getStrengthActivityFeed' => array(
+            'contentType' => self::CONTENT_TYPE_STRENGTH_ACTIVITY_FEED,
+            'uri' => self::URI_STRENGTH_TRAINING_ACTIVITIES,
+        ),
+        'getWeightSetFeed' => array(
+            'contentType' => self::CONTENT_TYPE_WEIGHT_SET_FEED,
+            'uri' => self::URI_WEIGHT,
+        ),
+    );
+    
     /**
      *
      * @param string $clientId
@@ -40,6 +155,21 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         ));
     }
 
+    public function __call($name, array $arguments)
+    {
+        if (strpos($name, 'get') === 0) {
+            if(array_key_exists($name, $this->callGetSimple)) {
+                return $this->requestGet($array[$name]['contentType'], $array[$name]['uri']);
+            }
+            if(array_key_exists($name, $this->callGetUri)) {
+                return $this->requestGet($array[$name]['contentType'], $arguments[0]);
+            }
+            if(array_key_exists($name, $this->callGetComplex)) {
+                return $this->requestGet($array[$name]['contentType'], $array[$name]['uri'], (isset($arguments[0]) ? $arguments[0] : null), (isset($arguments[1]) ? $arguments[1] : null));
+            }
+        }
+    }
+
     /**
      *
      * @return string
@@ -49,6 +179,17 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         return $this->oAuth->getAuthorizationUrl();
     }
 
+    /**
+     *
+     * @return string[]
+     */
+    protected function getHeaders()
+    {
+        return array(
+            'Authorization' => 'Bearer ' . $this->getAccessToken()->getToken()
+        );
+    }
+    
     /**
      *
      * @return OauthAccessToken
@@ -77,42 +218,12 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/profile
-     * @return mixed
-     */
-    public function getUser()
-    {
-        return $this->requestGet(self::CONTENT_TYPE_USER, self::URI_USER);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/profile
-     * @return mixed
-     */
-    public function getProfile()
-    {
-        return $this->requestGet(self::CONTENT_TYPE_PROFILE, self::URI_PROFILE);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/profile
      * @param array $arrayData
      * @return integer
      */
     public function setProfile(array $arrayData = array())
     {
         return $this->requestPut(self::CONTENT_TYPE_PROFILE, self::URI_PROFILE, $arrayData, $this->editProfile);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/settings
-     * @return mixed
-     */
-    public function getSettings()
-    {
-        return $this->requestGet(self::CONTENT_TYPE_SETTINGS, self::URI_SETTINGS);
     }
 
     /**
@@ -128,26 +239,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     /**
      *
-     * @link https://runkeeper.com/developer/healthgraph/fitness-activities#feed
-     * @return mixed
-     */
-    public function getFitnessActivityFeed($numPage = null, $pageSize = null)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_FITNESS_ACTIVITY_FEED, self::URI_FITNESS_ACTIVITIES, $numPage, $pageSize);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/fitness-activities#past
-     * @return mixed
-     */
-    public function getFitnessActivity($uri)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_FITNESS_ACTIVITY, $uri);
-    }
-
-    /**
-     *
      * @link https://runkeeper.com/developer/healthgraph/fitness-activities#past
      * @param string $uri
      * @param array $arrayData
@@ -156,16 +247,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
     public function setFitnessActivity($uri, array $arrayData)
     {
         return $this->requestPut(self::CONTENT_TYPE_FITNESS_ACTIVITY, $uri, $arrayData, $this->editFitnessActivity);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/fitness-activities#past
-     * @return mixed
-     */
-    public function getFitnessActivitySummary($uri)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY, $uri);
     }
 
     /**
@@ -217,16 +298,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     /**
      *
-     * @link https://runkeeper.com/developer/healthgraph/strength-training#strength-training-activity-feed
-     * @return mixed
-     */
-    public function getStrengthActivityFeed($numPage = null, $pageSize = null)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_STRENGTH_ACTIVITY_FEED, self::URI_STRENGTH_TRAINING_ACTIVITIES, $numPage, $pageSize);
-    }
-
-    /**
-     *
      * @link https://runkeeper.com/developer/healthgraph/strength-training#past
      * @param string $uri
      * @param array $arrayData
@@ -249,36 +320,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
         return $this->requestPost(self::CONTENT_TYPE_NEW_STRENGTH_ACTIVITY, self::URI_STRENGTH_TRAINING_ACTIVITIES, $arrayData, $arrayAdd);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/strength-training#past
-     * @return mixed
-     */
-    public function getStrengthActivity($uri)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_STRENGTH_ACTIVITY, $uri);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/weight-sets#feed
-     * @return mixed
-     */
-    public function getWeightSetFeed($numPage = null, $pageSize = null)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_WEIGHT_SET_FEED, self::URI_WEIGHT, $numPage, $pageSize);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/weight-sets#past
-     * @return mixed
-     */
-    public function getWeightSet($uri)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_WEIGHT_SET, $uri);
     }
 
     /**
@@ -310,16 +351,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     /**
      *
-     * @link https://runkeeper.com/developer/healthgraph/background-activity-sets#feed
-     * @return mixed
-     */
-    public function getBackgroundActivitySetFeed($numPage = null, $pageSize = null)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET_FEED, self::URI_BACKGROUND_ACTIVITIES, $numPage, $pageSize);
-    }
-
-    /**
-     *
      * @link https://runkeeper.com/developer/healthgraph/background-activity-sets#past
      * @param string $uri
      * @param array $arrayData
@@ -343,16 +374,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
         return $this->requestPost(self::CONTENT_TYPE_NEW_BACKGROUND_ACTIVITY_SET, self::URI_BACKGROUND_ACTIVITIES, $arrayData, $arrayAdd);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/sleep-sets#feed
-     * @return mixed
-     */
-    public function getSleepSetFeed($numPage = null, $pageSize = null)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_SLEEP_SET_FEED, self::URI_SLEEP, $numPage, $pageSize);
     }
 
     /**
@@ -384,16 +405,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     /**
      *
-     * @link https://runkeeper.com/developer/healthgraph/nutrition-sets#feed
-     * @return mixed
-     */
-    public function getNutritionSetFeed($numPage = null, $pageSize = null)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_NUTRITION_SET_FEED, self::URI_NUTRITION, $numPage, $pageSize);
-    }
-
-    /**
-     *
      * @link https://runkeeper.com/developer/healthgraph/nutrition-sets#past
      * @param string $uri
      * @param array $arrayData
@@ -417,16 +428,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
         return $this->requestPost(self::CONTENT_TYPE_NEW_NUTRITION_SET, self::URI_NUTRITION, $arrayData, $arrayAdd);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/general-measurement-sets#feed
-     * @return mixed
-     */
-    public function getGeneralMeasurementSetFeed($numPage = null, $pageSize = null)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET_FEED, self::URI_GENERAL_MEASUREMENTS, $numPage, $pageSize);
     }
 
     /**
@@ -458,16 +459,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     /**
      *
-     * @link https://runkeeper.com/developer/healthgraph/diabetes-sets#feed
-     * @return mixed
-     */
-    public function getDiabeteMeasurementSetFeed($numPage = null, $pageSize = null)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET_FEED, self::URI_DIABETES, $numPage, $pageSize);
-    }
-
-    /**
-     *
      * @link https://runkeeper.com/developer/healthgraph/diabetes-sets#past
      * @param string $uri
      * @param array $arrayData
@@ -492,46 +483,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
         return $this->requestPost(self::CONTENT_TYPE_NEW_DIABETE_MEASUREMENT_SET, self::URI_DIABETES, $arrayData, $arrayAdd);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/records
-     * @return mixed
-     */
-    public function getRecords($numPage = null, $pageSize = null)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_RECORDS, self::URI_RECORDS, $numPage, $pageSize);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/friends#feed
-     * @return mixed
-     */
-    public function getFriends($numPage = null, $pageSize = null)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_TEAM_FEED, self::URI_TEAM, $numPage, $pageSize);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/friends#members
-     * @return mixed
-     */
-    public function getMember($uri)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_MEMBER, $uri);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/comments#thread
-     * @return mixed
-     */
-    public function getCommentThread($uri)
-    {
-        return $this->requestGet(self::CONTENT_TYPE_COMMENT_THREAD, $uri);
     }
 
     /**

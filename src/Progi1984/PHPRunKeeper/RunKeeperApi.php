@@ -1,6 +1,7 @@
 <?php
 namespace Progi1984\PHPRunKeeper;
 
+use \GuzzleHttp\Client as HttpClient;
 use Progi1984\PHPRunKeeper;
 /**
  * @author Progi1984
@@ -290,20 +291,6 @@ class RunKeeperApi
      */
     protected $oClient;
 
-    /**
-     *
-     * @return string[]
-     */
-    protected function getHeaders()
-    {
-        if ($this instanceof PHPRunKeeper) {
-            return array(
-                'Authorization' => 'Bearer ' . $this->getAccessToken()->getToken()
-            );
-        }
-        return array();
-    }
-    
     /**
      * Request GET
      *
