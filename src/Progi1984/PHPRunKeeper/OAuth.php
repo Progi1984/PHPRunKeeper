@@ -55,9 +55,9 @@ class OAuth extends AbstractProvider
     /**
      * Get access token url to retrieve token
      *
-     * @param array $params            
-     *
+     * @param array $params
      * @return string
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getBaseAccessTokenUrl(array $params)
     {
@@ -67,9 +67,9 @@ class OAuth extends AbstractProvider
     /**
      * Get provider url to fetch user details
      *
-     * @param AccessToken $token            
-     *
+     * @param AccessToken $token
      * @return string
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
@@ -94,7 +94,7 @@ class OAuth extends AbstractProvider
      *
      * @link https://runkeeper.com/developer/healthgraph/error-messages
      * @throws IdentityProviderException
-     * @param ResponseInterface $response            
+     * @param ResponseInterface $response
      * @param array $data
      *            Parsed response data
      * @return void
@@ -110,9 +110,10 @@ class OAuth extends AbstractProvider
     /**
      * Generate a user object from a successful user details request.
      *
-     * @param array $response            
-     * @param AccessToken $token            
+     * @param array $response
+     * @param AccessToken $token
      * @return League\OAuth2\Client\Provider\ResourceOwnerInterface
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     protected function createResourceOwner(array $response, AccessToken $token)
     {
@@ -138,7 +139,7 @@ class OAuth extends AbstractProvider
             if (strpos($type, 'json') !== false) {
                 throw $e;
             }
-            
+
             return $content;
         }
     }

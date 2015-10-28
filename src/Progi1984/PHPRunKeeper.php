@@ -109,12 +109,12 @@ class PHPRunKeeper
 
     const CONTENT_TYPE_WEIGHT_SET_FEED = 'application/vnd.com.runkeeper.WeightSetFeed+json';
 
-    private static $EDIT_BACKGROUND_ACTIVITY = array(
+    private $editBackgroundActivity = array(
         'calories_burned',
         'steps'
     );
 
-    private static $EDIT_DIABETE_MEASUREMENT = array(
+    private $editDiabeteMeasurement = array(
         'fasting_plasma_glucose_test',
         'oral_glucose_tolerance_test',
         'random_plasma_glucose_test',
@@ -124,7 +124,7 @@ class PHPRunKeeper
         'triglyceride'
     );
 
-    private static $EDIT_FITNESS_ACTIVITY = array(
+    private $editFitnessActivity = array(
         'type',
         'secondary_type',
         'equipment',
@@ -138,7 +138,7 @@ class PHPRunKeeper
         'path'
     );
 
-    private static $EDIT_FITNESS_ACTIVITY_SUMMARY = array(
+    private $editFitnessActivitySummary = array(
         'type',
         'secondary_type',
         'equipment',
@@ -151,7 +151,7 @@ class PHPRunKeeper
         'notes'
     );
 
-    private static $EDIT_GENERAL_MEASUREMENT = array(
+    private $editGeneralMeasurement = array(
         'systolic',
         'diastolic',
         'total_cholesterol',
@@ -178,7 +178,7 @@ class PHPRunKeeper
         'white_cell_count'
     );
 
-    private static $EDIT_NUTRITION = array(
+    private $editNutrition = array(
         'calories',
         'carbohydrates',
         'fat',
@@ -189,11 +189,11 @@ class PHPRunKeeper
         'meal'
     );
 
-    private static $EDIT_PROFILE = array(
+    private $editProfile = array(
         'athlete_type'
     );
 
-    private static $EDIT_SETTINGS = array(
+    private $editSettings = array(
         'share_fitness_activities',
         'share_map',
         'post_fitness_activity_facebook',
@@ -223,7 +223,7 @@ class PHPRunKeeper
         'first_day_of_week'
     );
 
-    private static $EDIT_SLEEP = array(
+    private $editSleep = array(
         'total_sleep',
         'deep',
         'rem',
@@ -232,14 +232,14 @@ class PHPRunKeeper
         'times_woken'
     );
 
-    private static $EDIT_STRENGTH_ACTIVITY = array(
+    private $editStrengthActivity = array(
         'start_time',
         'total_calories',
         'notes',
         'exercises'
     );
 
-    private static $EDIT_WEIGHT = array(
+    private $editWeight = array(
         'weight',
         'free_mass',
         'fat_percent',
@@ -305,9 +305,9 @@ class PHPRunKeeper
 
     /**
      *
-     * @param string $clientId            
-     * @param string $clientSecret            
-     * @param string $redirectUri            
+     * @param string $clientId
+     * @param string $clientSecret
+     * @param string $redirectUri
      */
     public function __construct($clientId, $clientSecret, $redirectUri)
     {
@@ -349,7 +349,7 @@ class PHPRunKeeper
 
     /**
      *
-     * @param OauthAccessToken $token            
+     * @param OauthAccessToken $token
      * @return PHPRunKeeper
      */
     public function setAccessToken(OauthAccessToken $token)
@@ -370,28 +370,10 @@ class PHPRunKeeper
     }
 
     /**
-     *
-     * @param HttpResponse $oResponse            
-     * @return mixed
-     */
-    private function treatResult(\GuzzleHttp\Psr7\Response $oResponse)
-    {
-        $content = (string) $oResponse->getBody();
-        $type = $oResponse->getHeader('Content-Type');
-        $type = reset($type);
-        $type = str_replace(';', '&', $type);
-        parse_str($type, $arrType);
-        if (isset($arrType['charset']) && $arrType['charset'] == 'ISO-8859-1') {
-            $content = utf8_encode($content);
-        }
-        return json_decode($content, true);
-    }
-
-    /**
      * Request GET
      *
-     * @param string $contentType            
-     * @param string $uri            
+     * @param string $contentType
+     * @param string $uri
      */
     private function requestGet($contentType, $uri, $numPage = null, $pageSize = null)
     {
@@ -415,16 +397,25 @@ class PHPRunKeeper
         $oResponse = $this->oClient->request('GET', $url, array(
             'headers' => $arrayHeaders
         ));
-        return $this->treatResult($oResponse);
+        
+        $content = (string) $oResponse->getBody();
+        $type = $oResponse->getHeader('Content-Type');
+        $type = reset($type);
+        $type = str_replace(';', '&', $type);
+        parse_str($type, $arrType);
+        if (isset($arrType['charset']) && $arrType['charset'] == 'ISO-8859-1') {
+            $content = utf8_encode($content);
+        }
+        return json_decode($content, true);
     }
 
     /**
      * Request PUT
      *
-     * @param string $contentType            
-     * @param string $uri            
-     * @param array $arrayData            
-     * @param array $arrayEdit            
+     * @param string $contentType
+     * @param string $uri
+     * @param array $arrayData
+     * @param array $arrayEdit
      */
     private function requestPut($contentType, $uri, $arrayData, $arrayEdit)
     {
@@ -432,7 +423,7 @@ class PHPRunKeeper
             return self::RETURN_SUCCESS;
         }
         
-        foreach ($arrayData as $key => $value) {
+        foreach (array_keys($arrayData) as $key) {
             if (! in_array($key, $arrayEdit)) {
                 return self::RETURN_ERROR_EDIT_BAD_FIELD;
             }
@@ -451,13 +442,19 @@ class PHPRunKeeper
         }
     }
 
+    /**
+     *
+     * @param string $contentType
+     * @param string $uri
+     * @param string[] $arrayAdd
+     */
     private function requestPost($contentType, $uri, $arrayData, $arrayAdd)
     {
         if (empty($arrayData)) {
             return self::RETURN_SUCCESS;
         }
         
-        foreach ($arrayData as $key => $value) {
+        foreach (array_keys($arrayData) as $key) {
             if (! in_array($key, $arrayAdd)) {
                 return self::RETURN_ERROR_EDIT_BAD_FIELD;
             }
@@ -499,12 +496,12 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/profile
-     * @param array $arrayData            
-     * @return string|mixed
+     * @param array $arrayData
+     * @return integer
      */
     public function setProfile(array $arrayData = array())
     {
-        return $this->requestPut(self::CONTENT_TYPE_PROFILE, self::URI_PROFILE, $arrayData, self::$EDIT_PROFILE);
+        return $this->requestPut(self::CONTENT_TYPE_PROFILE, self::URI_PROFILE, $arrayData, $this->editProfile);
     }
 
     /**
@@ -520,12 +517,12 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/settings
-     * @param array $arrayData            
-     * @return string|mixed
+     * @param array $arrayData
+     * @return integer
      */
     public function setSettings(array $arrayData = array())
     {
-        return $this->requestPut(self::CONTENT_TYPE_SETTINGS, self::URI_SETTINGS, $arrayData, self::$EDIT_SETTINGS);
+        return $this->requestPut(self::CONTENT_TYPE_SETTINGS, self::URI_SETTINGS, $arrayData, $this->editSettings);
     }
 
     /**
@@ -551,11 +548,13 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/fitness-activities#past
-     * @return mixed
+     * @param string $uri
+     * @param array $arrayData
+     * @return integer
      */
     public function setFitnessActivity($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_FITNESS_ACTIVITY, $uri, $arrayData, self::$EDIT_FITNESS_ACTIVITY);
+        return $this->requestPut(self::CONTENT_TYPE_FITNESS_ACTIVITY, $uri, $arrayData, $this->editFitnessActivity);
     }
 
     /**
@@ -571,22 +570,24 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/fitness-activities#past
-     * @return mixed
+     * @param string $uri
+     * @param array $arrayData
+     * @return integer
      */
-    public function setFitnessActivitySummary($uri, $arrayData)
+    public function setFitnessActivitySummary($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY, $uri, $arrayData, self::$EDIT_FITNESS_ACTIVITY_SUMMARY);
+        return $this->requestPut(self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY, $uri, $arrayData, $this->editFitnessActivitySummary);
     }
 
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/fitness-activities#newly-completed-activities
-     * @param array $arrayData            
+     * @param array $arrayData
      * @return string
      */
     public function addFitnessActivity(array $arrayData)
     {
-        $arrayAdd = self::$EDIT_FITNESS_ACTIVITY;
+        $arrayAdd = $this->editFitnessActivity;
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
         $arrayAdd[] = 'detect_pauses';
@@ -597,7 +598,7 @@ class PHPRunKeeper
      *
      * @link https://runkeeper.com/developer/healthgraph/fitness-activities#deleting-activity
      * @link https://runkeeper.com/developer/healthgraph/strength-training#deleting-activity
-     * @param string $uri            
+     * @param string $uri
      * @return boolean
      */
     public function deleteActivity($uri)
@@ -626,22 +627,24 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/strength-training#past
-     * @return mixed
+     * @param string $uri
+     * @param array $arrayData
+     * @return integer
      */
-    public function setStrengthActivity($uri, $arrayData)
+    public function setStrengthActivity($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_STRENGTH_ACTIVITY, $uri, $arrayData, self::$EDIT_STRENGTH_ACTIVITY);
+        return $this->requestPut(self::CONTENT_TYPE_STRENGTH_ACTIVITY, $uri, $arrayData, $this->editStrengthActivity);
     }
 
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/strength-training#newly-completed-activities
-     * @param array $arrayData            
+     * @param array $arrayData
      * @return string
      */
     public function addStrengthActivity(array $arrayData)
     {
-        $arrayAdd = self::$EDIT_STRENGTH_ACTIVITY;
+        $arrayAdd = $this->editStrengthActivity;
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
         return $this->requestPost(self::CONTENT_TYPE_NEW_STRENGTH_ACTIVITY, self::URI_STRENGTH_TRAINING_ACTIVITIES, $arrayData, $arrayAdd);
@@ -680,22 +683,24 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/weight-sets#past
-     * @return mixed
+     * @param string $uri
+     * @param array $arrayData
+     * @return integer
      */
-    public function setWeightSet($uri, $arrayData)
+    public function setWeightSet($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_WEIGHT_SET, $uri, $arrayData, self::$EDIT_WEIGHT);
+        return $this->requestPut(self::CONTENT_TYPE_WEIGHT_SET, $uri, $arrayData, $this->editWeight);
     }
 
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/weight-sets#new
-     * @param array $arrayData            
+     * @param array $arrayData
      * @return string
      */
     public function addWeightSet(array $arrayData)
     {
-        $arrayAdd = self::$EDIT_WEIGHT;
+        $arrayAdd = $this->editWeight;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -715,22 +720,24 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/background-activity-sets#past
-     * @return mixed
+     * @param string $uri
+     * @param array $arrayData
+     * @return integer
      */
-    public function setBackgroundActivitySet($uri, $arrayData)
+    public function setBackgroundActivitySet($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET, $uri, $arrayData, self::$EDIT_BACKGROUND_ACTIVITY);
+        return $this->requestPut(self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET, $uri, $arrayData, $this->editBackgroundActivity);
     }
 
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/background-activity-sets#new
-     * @param array $arrayData            
+     * @param array $arrayData
      * @return string
      */
     public function addBackgroundActivitySet(array $arrayData)
     {
-        $arrayAdd = self::$EDIT_BACKGROUND_ACTIVITY;
+        $arrayAdd = $this->editBackgroundActivity;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -750,22 +757,24 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/sleep-sets#past
-     * @return mixed
+     * @param string $uri
+     * @param array $arrayData
+     * @return integer
      */
-    public function setSleepSet($uri, $arrayData)
+    public function setSleepSet($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_SLEEP_SET, $uri, $arrayData, self::$EDIT_SLEEP);
+        return $this->requestPut(self::CONTENT_TYPE_SLEEP_SET, $uri, $arrayData, $this->editSleep);
     }
 
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/sleep-sets#new
-     * @param array $arrayData            
+     * @param array $arrayData
      * @return string
      */
     public function addSleepSet(array $arrayData)
     {
-        $arrayAdd = self::$EDIT_SLEEP;
+        $arrayAdd = $this->editSleep;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -785,22 +794,24 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/nutrition-sets#past
-     * @return mixed
+     * @param string $uri
+     * @param array $arrayData
+     * @return integer
      */
-    public function setNutritionSet($uri, $arrayData)
+    public function setNutritionSet($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_NUTRITION_SET, $uri, $arrayData, self::$EDIT_NUTRITION);
+        return $this->requestPut(self::CONTENT_TYPE_NUTRITION_SET, $uri, $arrayData, $this->editNutrition);
     }
 
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/nutrition-sets#new
-     * @param array $arrayData            
+     * @param array $arrayData
      * @return string
      */
     public function addNutritionSet(array $arrayData)
     {
-        $arrayAdd = self::$EDIT_NUTRITION;
+        $arrayAdd = $this->editNutrition;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -820,22 +831,24 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/general-measurement-sets#past
-     * @return mixed
+     * @param string $uri
+     * @param array $arrayData
+     * @return integer
      */
-    public function setGeneralMeasurementSet($uri, $arrayData)
+    public function setGeneralMeasurementSet($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET, $uri, $arrayData, self::$EDIT_GENERAL_MEASUREMENT);
+        return $this->requestPut(self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET, $uri, $arrayData, $this->editGeneralMeasurement);
     }
 
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/general-measurement-sets#new
-     * @param array $arrayData            
+     * @param array $arrayData
      * @return string
      */
     public function addGeneralMeasurementSet(array $arrayData)
     {
-        $arrayAdd = self::$EDIT_GENERAL_MEASUREMENT;
+        $arrayAdd = $this->editGeneralMeasurement;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -855,22 +868,24 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/diabetes-sets#past
-     * @return mixed
+     * @param string $uri
+     * @param array $arrayData
+     * @return integer
      */
-    public function setDiabeteMeasurementSet($uri, $arrayData)
+    public function setDiabeteMeasurementSet($uri, array $arrayData)
     {
-        return $this->requestPut(self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET, $uri, $arrayData, self::$EDIT_DIABETE_MEASUREMENT);
+        return $this->requestPut(self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET, $uri, $arrayData, $this->editDiabeteMeasurement);
     }
 
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/diabetes-sets#new
-     * @param array $arrayData            
+     * @param array $arrayData
      * @return string
      */
     public function addDiabeteMeasurementSet(array $arrayData)
     {
-        $arrayAdd = self::$EDIT_DIABETE_MEASUREMENT;
+        $arrayAdd = $this->editDiabeteMeasurement;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'white_cell_count';
         $arrayAdd[] = 'post_to_facebook';
@@ -921,8 +936,8 @@ class PHPRunKeeper
     /**
      *
      * @link https://runkeeper.com/developer/healthgraph/comments#thread
-     * @param string $uri            
-     * @param string $comment            
+     * @param string $uri
+     * @param string $comment
      * @return mixed
      */
     public function addComment($uri, $comment)
