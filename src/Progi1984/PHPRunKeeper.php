@@ -9,25 +9,36 @@ use \GuzzleHttp\Psr7\Response as HttpResponse;
  * 
  * @author Progi1984
  *
- * @method mixed getCommentThread(string $uri)
- * @method mixed getFitnessActivity(string $uri)
- * @method mixed getFitnessActivitySummary(string $uri)
- * @method mixed getMember(string $uri)
- * @method mixed getProfile()
- * @method mixed getSettings()
- * @method mixed getStrengthActivity(string $uri)
- * @method mixed getUser()
- * @method mixed getWeightSet(string $uri)
  * @method mixed getBackgroundActivitySetFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getCommentThread(string $uri)
  * @method mixed getDiabeteMeasurementSetFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getFitnessActivity(string $uri)
  * @method mixed getFitnessActivityFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getFitnessActivitySummary(string $uri)
  * @method mixed getFriends(integer $numPage = null, integer $pageSize = null)
  * @method mixed getGeneralMeasurementSetFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getMember(string $uri)
  * @method mixed getNutritionSetFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getProfile()
  * @method mixed getRecords(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getSettings()
  * @method mixed getSleepSetFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getStrengthActivity(string $uri)
  * @method mixed getStrengthActivityFeed(integer $numPage = null, integer $pageSize = null)
+ * @method mixed getUser()
+ * @method mixed getWeightSet(string $uri)
  * @method mixed getWeightSetFeed(integer $numPage = null, integer $pageSize = null)
+ * @method integer setProfile(array $arrayData = array())
+ * @method integer setSettings(array $arrayData = array())
+ * @method integer setBackgroundActivitySet($uri, array $arrayData)
+ * @method integer setDiabeteMeasurementSet($uri, array $arrayData)
+ * @method integer setFitnessActivity($uri, array $arrayData)
+ * @method integer setFitnessActivitySummary($uri, array $arrayData)
+ * @method integer setGeneralMeasurementSet($uri, array $arrayData)
+ * @method integer setNutritionSet($uri, array $arrayData)
+ * @method integer setSleepSet($uri, array $arrayData)
+ * @method integer setStrengthActivity($uri, array $arrayData)
+ * @method integer setWeightSet($uri, array $arrayData)
  */
 class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 {
@@ -133,6 +144,53 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
             'uri' => self::URI_WEIGHT,
         ),
     );
+
+    /**
+     * @var string[][]
+     */
+    protected $callSetSimple = array(
+        'setProfile' => array(
+            'contentType' => self::CONTENT_TYPE_PROFILE,
+            'uri' => self::URI_PROFILE,
+        ),
+        'setSettings' => array(
+            'contentType' => self::CONTENT_TYPE_SETTINGS,
+            'uri' => self::URI_SETTINGS,
+        ),
+    );
+    
+    /**
+     * @var string[][]
+     */
+    protected $callSetUri = array(
+        'setBackgroundActivitySet' => array(
+            'contentType' => self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET,
+        ),
+        'setDiabeteMeasurementSet' => array(
+            'contentType' => self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET,
+        ),
+        'setFitnessActivity' => array(
+            'contentType' => self::CONTENT_TYPE_FITNESS_ACTIVITY,
+        ),
+        'setFitnessActivitySummary' => array(
+            'contentType' => self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY,
+        ),
+        'setGeneralMeasurementSet' => array(
+            'contentType' => self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET,
+        ),
+        'setNutritionSet' => array(
+            'contentType' => self::CONTENT_TYPE_NUTRITION_SET,
+        ),
+        'setSleepSet' => array(
+            'contentType' => self::CONTENT_TYPE_SLEEP_SET,
+        ),
+        'setStrengthActivity' => array(
+            'contentType' => self::CONTENT_TYPE_STRENGTH_ACTIVITY,
+        ),
+        'setWeightSet' => array(
+            'contentType' => self::CONTENT_TYPE_WEIGHT_SET,
+        ),
+    );
     
     /**
      *
@@ -157,6 +215,16 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     public function __call($name, array $arguments)
     {
+        if (strpos($name, 'get') === 0) {
+            return $this->callGet($name, $arguments);
+        }
+        if (strpos($name, 'set') === 0) {
+            return $this->callSet($name, $arguments);
+        }
+    }
+    
+    protected function callGet($name, array $arguments)
+    {
         if (array_key_exists($name, $this->callGetSimple)) {
             return $this->requestGet($this->callGetSimple[$name]['contentType'], $this->callGetSimple[$name]['uri']);
         }
@@ -165,6 +233,53 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         }
         if (array_key_exists($name, $this->callGetComplex)) {
             return $this->requestGet($this->callGetComplex[$name]['contentType'], $this->callGetComplex[$name]['uri'], (isset($arguments[0]) ? $arguments[0] : null), (isset($arguments[1]) ? $arguments[1] : null));
+        }
+    }
+    
+    protected function callSet($name, array $arguments)
+    {
+        if (array_key_exists($name, $this->callSetSimple)) {
+            switch ($this->callSetSimple[$name]['contentType']) {
+                case self::CONTENT_TYPE_PROFILE:
+                    $arrayEdit = $this->editProfile;
+                    break;
+                case self::CONTENT_TYPE_SETTINGS:
+                    $arrayEdit = $this->editSettings;
+                    break;
+            }
+            return $this->requestPut($this->callSetSimple[$name]['contentType'], $this->callGetSimple[$name]['uri'], $arguments[0], $arrayEdit);
+        }
+        if (array_key_exists($name, $this->callSetUri)) {
+            switch ($this->callSetUri[$name]['contentType']) {
+                case self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET:
+                    $arrayEdit = $this->editBkgActivity;
+                    break;
+                case self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET:
+                    $arrayEdit = $this->editDiabeteMeasure;
+                    break;
+                case self::CONTENT_TYPE_FITNESS_ACTIVITY:
+                    $arrayEdit = $this->editFitnessActivity;
+                    break;
+                case self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY:
+                    $arrayEdit = $this->editFitnessActSum;
+                    break;
+                case self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET:
+                    $arrayEdit = $this->editGenMeasurement;
+                    break;
+                case self::CONTENT_TYPE_NUTRITION_SET:
+                    $arrayEdit = $this->editNutrition;
+                    break;
+                case self::CONTENT_TYPE_SLEEP_SET:
+                    $arrayEdit = $this->editSleep;
+                    break;
+                case self::CONTENT_TYPE_STRENGTH_ACTIVITY:
+                    $arrayEdit = $this->editStrengthActivity;
+                    break;
+                case self::CONTENT_TYPE_WEIGHT_SET:
+                    $arrayEdit = $this->editWeight;
+                    break;
+            }
+            return $this->requestPut($this->callSetUri[$name]['contentType'], $arguments[0], $arguments[1], $arrayEdit);
         }
     }
 
@@ -215,52 +330,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     /**
      *
-     * @link https://runkeeper.com/developer/healthgraph/profile
-     * @param array $arrayData
-     * @return integer
-     */
-    public function setProfile(array $arrayData = array())
-    {
-        return $this->requestPut(self::CONTENT_TYPE_PROFILE, self::URI_PROFILE, $arrayData, $this->editProfile);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/settings
-     * @param array $arrayData
-     * @return integer
-     */
-    public function setSettings(array $arrayData = array())
-    {
-        return $this->requestPut(self::CONTENT_TYPE_SETTINGS, self::URI_SETTINGS, $arrayData, $this->editSettings);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/fitness-activities#past
-     * @param string $uri
-     * @param array $arrayData
-     * @return integer
-     */
-    public function setFitnessActivity($uri, array $arrayData)
-    {
-        return $this->requestPut(self::CONTENT_TYPE_FITNESS_ACTIVITY, $uri, $arrayData, $this->editFitnessActivity);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/fitness-activities#past
-     * @param string $uri
-     * @param array $arrayData
-     * @return integer
-     */
-    public function setFitnessActivitySummary($uri, array $arrayData)
-    {
-        return $this->requestPut(self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY, $uri, $arrayData, $this->editFitnessActSum );
-    }
-
-    /**
-     *
      * @link https://runkeeper.com/developer/healthgraph/fitness-activities#newly-completed-activities
      * @param array $arrayData
      * @return string
@@ -276,38 +345,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     /**
      *
-     * @link https://runkeeper.com/developer/healthgraph/fitness-activities#deleting-activity
-     * @link https://runkeeper.com/developer/healthgraph/strength-training#deleting-activity
-     * @param string $uri
-     * @return boolean
-     */
-    public function deleteActivity($uri)
-    {
-        // Headers
-        $arrayHeaders = $this->getHeaders();
-        $oResponse = $this->oClient->request('DELETE', $uri, array(
-            'headers' => $arrayHeaders
-        ));
-        if ($oResponse->getStatusCode() == 204) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/strength-training#past
-     * @param string $uri
-     * @param array $arrayData
-     * @return integer
-     */
-    public function setStrengthActivity($uri, array $arrayData)
-    {
-        return $this->requestPut(self::CONTENT_TYPE_STRENGTH_ACTIVITY, $uri, $arrayData, $this->editStrengthActivity);
-    }
-
-    /**
-     *
      * @link https://runkeeper.com/developer/healthgraph/strength-training#newly-completed-activities
      * @param array $arrayData
      * @return string
@@ -318,18 +355,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
         return $this->requestPost(self::CONTENT_TYPE_NEW_STRENGTH_ACTIVITY, self::URI_STRENGTH_TRAINING_ACTIVITIES, $arrayData, $arrayAdd);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/weight-sets#past
-     * @param string $uri
-     * @param array $arrayData
-     * @return integer
-     */
-    public function setWeightSet($uri, array $arrayData)
-    {
-        return $this->requestPut(self::CONTENT_TYPE_WEIGHT_SET, $uri, $arrayData, $this->editWeight);
     }
 
     /**
@@ -349,18 +374,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     /**
      *
-     * @link https://runkeeper.com/developer/healthgraph/background-activity-sets#past
-     * @param string $uri
-     * @param array $arrayData
-     * @return integer
-     */
-    public function setBackgroundActivitySet($uri, array $arrayData)
-    {
-        return $this->requestPut(self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET, $uri, $arrayData, $this->editBkgActivity);
-    }
-
-    /**
-     *
      * @link https://runkeeper.com/developer/healthgraph/background-activity-sets#new
      * @param array $arrayData
      * @return string
@@ -372,18 +385,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
         return $this->requestPost(self::CONTENT_TYPE_NEW_BACKGROUND_ACTIVITY_SET, self::URI_BACKGROUND_ACTIVITIES, $arrayData, $arrayAdd);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/sleep-sets#past
-     * @param string $uri
-     * @param array $arrayData
-     * @return integer
-     */
-    public function setSleepSet($uri, array $arrayData)
-    {
-        return $this->requestPut(self::CONTENT_TYPE_SLEEP_SET, $uri, $arrayData, $this->editSleep);
     }
 
     /**
@@ -403,18 +404,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     /**
      *
-     * @link https://runkeeper.com/developer/healthgraph/nutrition-sets#past
-     * @param string $uri
-     * @param array $arrayData
-     * @return integer
-     */
-    public function setNutritionSet($uri, array $arrayData)
-    {
-        return $this->requestPut(self::CONTENT_TYPE_NUTRITION_SET, $uri, $arrayData, $this->editNutrition);
-    }
-
-    /**
-     *
      * @link https://runkeeper.com/developer/healthgraph/nutrition-sets#new
      * @param array $arrayData
      * @return string
@@ -430,18 +419,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     /**
      *
-     * @link https://runkeeper.com/developer/healthgraph/general-measurement-sets#past
-     * @param string $uri
-     * @param array $arrayData
-     * @return integer
-     */
-    public function setGeneralMeasurementSet($uri, array $arrayData)
-    {
-        return $this->requestPut(self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET, $uri, $arrayData, $this->editGenMeasurement);
-    }
-
-    /**
-     *
      * @link https://runkeeper.com/developer/healthgraph/general-measurement-sets#new
      * @param array $arrayData
      * @return string
@@ -453,18 +430,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
         return $this->requestPost(self::CONTENT_TYPE_NEW_GENERAL_MEASUREMENT_SET, self::URI_GENERAL_MEASUREMENTS, $arrayData, $arrayAdd);
-    }
-
-    /**
-     *
-     * @link https://runkeeper.com/developer/healthgraph/diabetes-sets#past
-     * @param string $uri
-     * @param array $arrayData
-     * @return integer
-     */
-    public function setDiabeteMeasurementSet($uri, array $arrayData)
-    {
-        return $this->requestPut(self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET, $uri, $arrayData, $this->editDiabeteMeasure);
     }
 
     /**
@@ -507,5 +472,25 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         } else {
             return self::RETURN_ERROR_SAVE;
         }
+    }
+
+    /**
+     *
+     * @link https://runkeeper.com/developer/healthgraph/fitness-activities#deleting-activity
+     * @link https://runkeeper.com/developer/healthgraph/strength-training#deleting-activity
+     * @param string $uri
+     * @return boolean
+     */
+    public function deleteActivity($uri)
+    {
+        // Headers
+        $arrayHeaders = $this->getHeaders();
+        $oResponse = $this->oClient->request('DELETE', $uri, array(
+            'headers' => $arrayHeaders
+        ));
+        if ($oResponse->getStatusCode() == 204) {
+            return true;
+        }
+        return false;
     }
 }
