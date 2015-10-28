@@ -157,16 +157,14 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     public function __call($name, array $arguments)
     {
-        if (strpos($name, 'get') === 0) {
-            if (array_key_exists($name, $this->callGetSimple)) {
-                return $this->requestGet($this->callGetSimple[$name]['contentType'], $this->callGetSimple[$name]['uri']);
-            }
-            if (array_key_exists($name, $this->callGetUri)) {
-                return $this->requestGet($this->callGetUri[$name]['contentType'], $arguments[0]);
-            }
-            if (array_key_exists($name, $this->callGetComplex)) {
-                return $this->requestGet($this->callGetComplex[$name]['contentType'], $this->callGetComplex[$name]['uri'], (isset($arguments[0]) ? $arguments[0] : null), (isset($arguments[1]) ? $arguments[1] : null));
-            }
+        if (array_key_exists($name, $this->callGetSimple)) {
+            return $this->requestGet($this->callGetSimple[$name]['contentType'], $this->callGetSimple[$name]['uri']);
+        }
+        if (array_key_exists($name, $this->callGetUri)) {
+            return $this->requestGet($this->callGetUri[$name]['contentType'], $arguments[0]);
+        }
+        if (array_key_exists($name, $this->callGetComplex)) {
+            return $this->requestGet($this->callGetComplex[$name]['contentType'], $this->callGetComplex[$name]['uri'], (isset($arguments[0]) ? $arguments[0] : null), (isset($arguments[1]) ? $arguments[1] : null));
         }
     }
 
