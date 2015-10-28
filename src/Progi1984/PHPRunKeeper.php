@@ -238,7 +238,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
     
     protected function callSet($name, array $arguments)
     {
-        $arrayEdit = array();
         if (array_key_exists($name, $this->callSetSimple)) {
             switch ($this->callSetSimple[$name]['contentType']) {
                 case self::CONTENT_TYPE_PROFILE:
@@ -246,6 +245,9 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
                     break;
                 case self::CONTENT_TYPE_SETTINGS:
                     $arrayEdit = $this->editSettings;
+                    break;
+                default:
+                    $arrayEdit = array();
                     break;
             }
             return $this->requestPut($this->callSetSimple[$name]['contentType'], $this->callGetSimple[$name]['uri'], $arguments[0], $arrayEdit);
@@ -278,6 +280,9 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
                     break;
                 case self::CONTENT_TYPE_WEIGHT_SET:
                     $arrayEdit = $this->editWeight;
+                    break;
+                default:
+                    $arrayEdit = array();
                     break;
             }
             return $this->requestPut($this->callSetUri[$name]['contentType'], $arguments[0], $arguments[1], $arrayEdit);
@@ -454,7 +459,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      * @link https://runkeeper.com/developer/healthgraph/comments#thread
      * @param string $uri
      * @param string $comment
-     * @return mixed
+     * @return integer
      */
     public function addComment($uri, $comment)
     {
