@@ -238,6 +238,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
     
     protected function callSet($name, array $arguments)
     {
+        $arrayEdit = array();
         if (array_key_exists($name, $this->callSetSimple)) {
             switch ($this->callSetSimple[$name]['contentType']) {
                 case self::CONTENT_TYPE_PROFILE:
