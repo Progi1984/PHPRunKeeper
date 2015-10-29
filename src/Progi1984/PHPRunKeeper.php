@@ -55,25 +55,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
     protected $oAccessToken;
     
     /**
-     * 
-     * @var string[][]
-     */
-    protected $callGetSimple = array(
-        'getProfile' => array(
-            'contentType' => self::CONTENT_TYPE_PROFILE,
-            'uri' => self::URI_PROFILE,
-        ),
-        'getSettings' => array(
-            'contentType' => self::CONTENT_TYPE_SETTINGS,
-            'uri' => self::URI_SETTINGS,
-        ),
-        'getUser' => array(
-            'contentType' => self::CONTENT_TYPE_USER,
-            'uri' => self::URI_USER,
-        )
-    );
-    
-    /**
      *
      * @var string[][]
      */
@@ -127,9 +108,17 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
             'contentType' => self::CONTENT_TYPE_NUTRITION_SET_FEED,
             'uri' => self::URI_NUTRITION,
         ),
+        'getProfile' => array(
+            'contentType' => self::CONTENT_TYPE_PROFILE,
+            'uri' => self::URI_PROFILE,
+        ),
         'getRecords' => array(
             'contentType' => self::CONTENT_TYPE_RECORDS,
             'uri' => self::URI_RECORDS,
+        ),
+        'getSettings' => array(
+            'contentType' => self::CONTENT_TYPE_SETTINGS,
+            'uri' => self::URI_SETTINGS,
         ),
         'getSleepSetFeed' => array(
             'contentType' => self::CONTENT_TYPE_SLEEP_SET_FEED,
@@ -138,6 +127,10 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         'getStrengthActivityFeed' => array(
             'contentType' => self::CONTENT_TYPE_STRENGTH_ACTIVITY_FEED,
             'uri' => self::URI_STRENGTH_TRAINING_ACTIVITIES,
+        ),
+        'getUser' => array(
+            'contentType' => self::CONTENT_TYPE_USER,
+            'uri' => self::URI_USER,
         ),
         'getWeightSetFeed' => array(
             'contentType' => self::CONTENT_TYPE_WEIGHT_SET_FEED,
@@ -225,14 +218,12 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
     
     protected function callGet($name, array $arguments)
     {
-        if (array_key_exists($name, $this->callGetSimple)) {
-            return $this->requestGet($this->callGetSimple[$name]['contentType'], $this->callGetSimple[$name]['uri']);
-        }
+        $arguments[0] = (isset($arguments[0]) ? $arguments[0] : null);
+        $arguments[1] = (isset($arguments[1]) ? $arguments[1] : null);
+        
         if (array_key_exists($name, $this->callGetUri)) {
             return $this->requestGet($this->callGetUri[$name]['contentType'], $arguments[0]);
         }
-        $arguments[0] = (isset($arguments[0]) ? $arguments[0] : null);
-        $arguments[1] = (isset($arguments[1]) ? $arguments[1] : null);
         if (array_key_exists($name, $this->callGetComplex)) {
             return $this->requestGet($this->callGetComplex[$name]['contentType'], $this->callGetComplex[$name]['uri'], $arguments[0], $arguments[1]);
         }
