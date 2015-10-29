@@ -208,14 +208,14 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
 
     public function __call($name, array $arguments)
     {
+        // If GET
         if (strpos($name, 'get') === 0) {
             $arguments[0] = (isset($arguments[0]) ? $arguments[0] : null);
             $arguments[1] = (isset($arguments[1]) ? $arguments[1] : null);
             return $this->callGet($name, $arguments);
         }
-        if (strpos($name, 'set') === 0) {
-            return $this->callSet($name, $arguments);
-        }
+        // Else SET
+        return $this->callSet($name, $arguments);
     }
     
     protected function callGet($name, array $arguments)
