@@ -209,6 +209,8 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
     public function __call($name, array $arguments)
     {
         if (strpos($name, 'get') === 0) {
+            $arguments[0] = (isset($arguments[0]) ? $arguments[0] : null);
+            $arguments[1] = (isset($arguments[1]) ? $arguments[1] : null);
             return $this->callGet($name, $arguments);
         }
         if (strpos($name, 'set') === 0) {
@@ -218,9 +220,6 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
     
     protected function callGet($name, array $arguments)
     {
-        $arguments[0] = (isset($arguments[0]) ? $arguments[0] : null);
-        $arguments[1] = (isset($arguments[1]) ? $arguments[1] : null);
-        
         if (array_key_exists($name, $this->callGetUri)) {
             return $this->requestGet($this->callGetUri[$name]['contentType'], $arguments[0]);
         }
@@ -233,7 +232,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
     {
         if (array_key_exists($name, $this->callSetSimple)) {
             $arrayEdit = $this->getEditArray($this->callSetSimple[$name]['contentType']);
-            return $this->requestPut($this->callSetSimple[$name]['contentType'], $this->callGetSimple[$name]['uri'], $arguments[0], $arrayEdit);
+            return $this->requestPut($this->callSetSimple[$name]['contentType'], $this->callSetSimple[$name]['uri'], $arguments[0], $arrayEdit);
         }
         if (array_key_exists($name, $this->callSetUri)) {
             $arrayEdit = $this->getEditArray($this->callSetUri[$name]['contentType']);
@@ -462,7 +461,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
             $nameVar = str_replace('_', ' ', $nameVar);
             $nameVar = ucwords(strtolower($nameVar));
             $nameVar = str_replace(' ', '', $nameVar);
-            if(isset($this->{'edit'.$nameVar})) {
+            if (isset($this->{'edit'.$nameVar})) {
                 $arrayEdit = $this->{'edit'.$nameVar};
             }
         }
