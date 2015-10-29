@@ -231,8 +231,10 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         if (array_key_exists($name, $this->callGetUri)) {
             return $this->requestGet($this->callGetUri[$name]['contentType'], $arguments[0]);
         }
+        $arguments[0] = (isset($arguments[0]) ? $arguments[0] : null);
+        $arguments[1] = (isset($arguments[1]) ? $arguments[1] : null);
         if (array_key_exists($name, $this->callGetComplex)) {
-            return $this->requestGet($this->callGetComplex[$name]['contentType'], $this->callGetComplex[$name]['uri'], (isset($arguments[0]) ? $arguments[0] : null), (isset($arguments[1]) ? $arguments[1] : null));
+            return $this->requestGet($this->callGetComplex[$name]['contentType'], $this->callGetComplex[$name]['uri'], $arguments[0], $arguments[1]);
         }
     }
     
