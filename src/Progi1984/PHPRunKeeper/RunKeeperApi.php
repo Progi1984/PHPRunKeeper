@@ -141,12 +141,12 @@ class RunKeeperApi
 
     const URI_WEIGHT = '/weight';
 
-    protected $editBkgActivity = array(
+    protected $editBackroundgActivitySet = array(
         'calories_burned',
         'steps'
     );
     
-    protected $editDiabeteMeasure = array(
+    protected $editDiabeteMeasurementSet = array(
         'fasting_plasma_glucose_test',
         'oral_glucose_tolerance_test',
         'random_plasma_glucose_test',
@@ -170,7 +170,7 @@ class RunKeeperApi
         'path'
     );
     
-    protected $editFitnessActSum = array(
+    protected $editFitnessActivitySummary = array(
         'type',
         'secondary_type',
         'equipment',
@@ -183,7 +183,7 @@ class RunKeeperApi
         'notes'
     );
     
-    protected $editGenMeasurement = array(
+    protected $editGeneralMeasurementSet = array(
         'systolic',
         'diastolic',
         'total_cholesterol',
@@ -210,7 +210,7 @@ class RunKeeperApi
         'white_cell_count'
     );
     
-    protected $editNutrition = array(
+    protected $editNutritionSet = array(
         'calories',
         'carbohydrates',
         'fat',
@@ -255,7 +255,7 @@ class RunKeeperApi
         'first_day_of_week'
     );
     
-    protected $editSleep = array(
+    protected $editSleepSet = array(
         'total_sleep',
         'deep',
         'rem',
@@ -271,7 +271,7 @@ class RunKeeperApi
         'exercises'
     );
     
-    protected $editWeight = array(
+    protected $editWeightSet = array(
         'weight',
         'free_mass',
         'fat_percent',

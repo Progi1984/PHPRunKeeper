@@ -239,52 +239,11 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
     protected function callSet($name, array $arguments)
     {
         if (array_key_exists($name, $this->callSetSimple)) {
-            switch ($this->callSetSimple[$name]['contentType']) {
-                case self::CONTENT_TYPE_PROFILE:
-                    $arrayEdit = $this->editProfile;
-                    break;
-                case self::CONTENT_TYPE_SETTINGS:
-                    $arrayEdit = $this->editSettings;
-                    break;
-                default:
-                    $arrayEdit = array();
-                    break;
-            }
+            $arrayEdit = $this->getEditArray($this->callSetSimple[$name]['contentType']);
             return $this->requestPut($this->callSetSimple[$name]['contentType'], $this->callGetSimple[$name]['uri'], $arguments[0], $arrayEdit);
         }
         if (array_key_exists($name, $this->callSetUri)) {
-            switch ($this->callSetUri[$name]['contentType']) {
-                case self::CONTENT_TYPE_BACKGROUND_ACTIVITY_SET:
-                    $arrayEdit = $this->editBkgActivity;
-                    break;
-                case self::CONTENT_TYPE_DIABETE_MEASUREMENT_SET:
-                    $arrayEdit = $this->editDiabeteMeasure;
-                    break;
-                case self::CONTENT_TYPE_FITNESS_ACTIVITY:
-                    $arrayEdit = $this->editFitnessActivity;
-                    break;
-                case self::CONTENT_TYPE_FITNESS_ACTIVITY_SUMMARY:
-                    $arrayEdit = $this->editFitnessActSum;
-                    break;
-                case self::CONTENT_TYPE_GENERAL_MEASUREMENT_SET:
-                    $arrayEdit = $this->editGenMeasurement;
-                    break;
-                case self::CONTENT_TYPE_NUTRITION_SET:
-                    $arrayEdit = $this->editNutrition;
-                    break;
-                case self::CONTENT_TYPE_SLEEP_SET:
-                    $arrayEdit = $this->editSleep;
-                    break;
-                case self::CONTENT_TYPE_STRENGTH_ACTIVITY:
-                    $arrayEdit = $this->editStrengthActivity;
-                    break;
-                case self::CONTENT_TYPE_WEIGHT_SET:
-                    $arrayEdit = $this->editWeight;
-                    break;
-                default:
-                    $arrayEdit = array();
-                    break;
-            }
+            $arrayEdit = $this->getEditArray($this->callSetUri[$name]['contentType']);
             return $this->requestPut($this->callSetUri[$name]['contentType'], $arguments[0], $arguments[1], $arrayEdit);
         }
     }
@@ -371,7 +330,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addWeightSet(array $arrayData)
     {
-        $arrayAdd = $this->editWeight;
+        $arrayAdd = $this->editWeightSet;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -386,7 +345,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addBackgroundActivitySet(array $arrayData)
     {
-        $arrayAdd = $this->editBkgActivity;
+        $arrayAdd = $this->editBackroundgActivitySet;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -401,7 +360,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addSleepSet(array $arrayData)
     {
-        $arrayAdd = $this->editSleep;
+        $arrayAdd = $this->editSleepSet;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -416,7 +375,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addNutritionSet(array $arrayData)
     {
-        $arrayAdd = $this->editNutrition;
+        $arrayAdd = $this->editNutritionSet;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -431,7 +390,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addGeneralMeasurementSet(array $arrayData)
     {
-        $arrayAdd = $this->editGenMeasurement;
+        $arrayAdd = $this->editGeneralMeasurementSet;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -446,7 +405,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addDiabeteMeasurementSet(array $arrayData)
     {
-        $arrayAdd = $this->editDiabeteMeasure;
+        $arrayAdd = $this->editDiabeteMeasurementSet;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'white_cell_count';
         $arrayAdd[] = 'post_to_facebook';
@@ -498,5 +457,22 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
             return true;
         }
         return false;
+    }
+    
+    private function getEditArray($constant) {
+        $reflectionClass = new ReflectionClass(__CLASS__);
+        $reflectionConstants = array_flip($reflectionClass->getConstants());
+        $arrayEdit = array();
+        if (isset($reflectionConstants[$constant])) {
+            $nameVar = $reflectionConstants[$constant];
+            $nameVar = str_replace('CONTENT_TYPE_', '', $nameVar);
+            $nameVar = str_replace('_', ' ', $nameVar);
+            $nameVar = ucwords(strtolower($nameVar));
+            $nameVar = str_replace(' ', '', $nameVar);
+            if(isset($this->{'edit'.$nameVar})) {
+                $arrayEdit = $this->{'edit'.$nameVar};
+            }
+        }
+        return $arrayEdit;
     }
 }
