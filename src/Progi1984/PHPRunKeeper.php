@@ -6,7 +6,7 @@ use \GuzzleHttp\Client as HttpClient;
 use \GuzzleHttp\Psr7\Response as HttpResponse;
 
 /**
- * 
+ *
  * @author Progi1984
  *
  * @method mixed getBackgroundActivitySetFeed(integer $numPage = null, integer $pageSize = null)
@@ -80,7 +80,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
     );
 
     /**
-     * 
+     *
      * @var string[][]
      */
     protected $callGetComplex = array(
@@ -337,7 +337,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addBackgroundActivitySet(array $arrayData)
     {
-        $arrayAdd = $this->editBackroundgActivitySet;
+        $arrayAdd = $this->editBkgActivitySet;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -382,7 +382,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addGeneralMeasurementSet(array $arrayData)
     {
-        $arrayAdd = $this->editGeneralMeasurementSet;
+        $arrayAdd = $this->editGeneralMsrmtSet;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'post_to_facebook';
         $arrayAdd[] = 'post_to_twitter';
@@ -397,7 +397,7 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
      */
     public function addDiabeteMeasurementSet(array $arrayData)
     {
-        $arrayAdd = $this->editDiabeteMeasurementSet;
+        $arrayAdd = $this->editDiabeteMsrmtSet;
         $arrayAdd[] = 'timestamp';
         $arrayAdd[] = 'white_cell_count';
         $arrayAdd[] = 'post_to_facebook';
@@ -451,7 +451,8 @@ class PHPRunKeeper extends PHPRunKeeper\RunKeeperApi
         return false;
     }
     
-    private function getEditArray($constant) {
+    private function getEditArray($constant)
+    {
         $reflectionClass = new ReflectionClass(__CLASS__);
         $reflectionConstants = array_flip($reflectionClass->getConstants());
         $arrayEdit = array();

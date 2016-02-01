@@ -3,6 +3,7 @@ namespace Progi1984\PHPRunKeeper;
 
 use \GuzzleHttp\Client as HttpClient;
 use Progi1984\PHPRunKeeper;
+
 /**
  * @author Progi1984
  */
@@ -141,12 +142,12 @@ class RunKeeperApi
 
     const URI_WEIGHT = '/weight';
 
-    protected $editBackroundgActivitySet = array(
+    protected $editBkgActivitySet = array(
         'calories_burned',
         'steps'
     );
     
-    protected $editDiabeteMeasurementSet = array(
+    protected $editDiabeteMsrmtSet = array(
         'fasting_plasma_glucose_test',
         'oral_glucose_tolerance_test',
         'random_plasma_glucose_test',
@@ -170,7 +171,7 @@ class RunKeeperApi
         'path'
     );
     
-    protected $editFitnessActivitySummary = array(
+    protected $editFitnessActSum = array(
         'type',
         'secondary_type',
         'equipment',
@@ -183,7 +184,7 @@ class RunKeeperApi
         'notes'
     );
     
-    protected $editGeneralMeasurementSet = array(
+    protected $editGeneralMsrmtSet = array(
         'systolic',
         'diastolic',
         'total_cholesterol',
