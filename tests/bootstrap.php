@@ -1,0 +1,7 @@
+<?php
+include_once __DIR__.'/../vendor/autoload.php';
+
+define('PHPRUNKEEPER_API_ID', getenv('PHPRUNKEEPER_API_ID'));
+define('PHPRUNKEEPER_API_SECRET', getenv('PHPRUNKEEPER_API_SECRET'));
+define('PHPRUNKEEPER_API_URI', getenv('PHPRUNKEEPER_API_URI'));
+define('PHPRUNKEEPER_API_ACCESSTOKEN', getenv('PHPRUNKEEPER_API_ACCESSTOKEN'));

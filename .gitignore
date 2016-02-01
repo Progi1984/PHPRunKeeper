@@ -3,3 +3,4 @@ vendor/
 .project
 batch_CI.bat
 composer.phar
+build/

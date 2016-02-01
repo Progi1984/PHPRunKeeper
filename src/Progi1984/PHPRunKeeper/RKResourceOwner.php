@@ -37,7 +37,7 @@ class RKResourceOwner implements ResourceOwnerInterface
      */
     public function getId()
     {
-        return $this->response['id'] ?  : null;
+        return isset($this->response['id']) ? $this->response['id'] : null;
     }
 
     /**
@@ -47,7 +47,7 @@ class RKResourceOwner implements ResourceOwnerInterface
      */
     public function getEmail()
     {
-        return $this->response['email'] ?  : null;
+        return isset($this->response['email']) ? $this->response['email'] : null;
     }
 
     /**
@@ -57,7 +57,7 @@ class RKResourceOwner implements ResourceOwnerInterface
      */
     public function getName()
     {
-        return $this->response['name'] ?  : null;
+        return isset($this->response['name']) ? $this->response['name'] : null;
     }
 
     /**
@@ -67,7 +67,7 @@ class RKResourceOwner implements ResourceOwnerInterface
      */
     public function getNickname()
     {
-        return $this->response['login'] ?  : null;
+        return isset($this->response['login']) ? $this->response['login'] : null;
     }
 
     /**
@@ -77,7 +77,7 @@ class RKResourceOwner implements ResourceOwnerInterface
      */
     public function getUrl()
     {
-        return $this->response['profile'] ?  : null;
+        return isset($this->response['profile']) ? $this->response['profile'] : null;
     }
 
     /**
